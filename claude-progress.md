@@ -88,3 +88,23 @@
 | Claude Code | MANUAL_REQUIRED | No safe file-based config path detected |
 | OpenCode | MANUAL_REQUIRED | No safe file-based config path detected |
 | Codex | MANUAL_REQUIRED | No safe file-based config path detected |
+
+## Session: Real Claude Desktop MCP Config Apply
+
+- Performed first real SlimyOS MCP config install into Claude Desktop.
+- Config path: `~/.config/Claude/claude_desktop_config.json`
+- Existing mcpServers (`google-drive`, `gmail`) preserved.
+- SlimyOS MCP entry merged in successfully.
+- Backup created at `~/.config/slimyos/backups/mcp-config/20260515T165757Z`.
+- JSON validation passed after write.
+- No Claude Code, OpenCode, or Codex configs modified.
+- All verification scripts pass: doctor, healthline, bridge smoke.
+- Rollback available via `./scripts/slimyos-mcp-configure.sh --rollback`.
+
+## Proof
+
+- Real apply proof directory: `/tmp/proof_slimyos_real_claude_desktop_apply_20260515T165623Z`
+- Apply result: `PASS`
+- All 9 verification checks passed.
+- mcpServers before: `google-drive, gmail`
+- mcpServers after: `google-drive, gmail, slimyos`

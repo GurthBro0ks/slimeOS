@@ -52,13 +52,14 @@
       "id": "mcp-client-config-configure",
       "title": "Safe MCP client config apply and rollback",
       "status": "implemented",
-      "summary": "Adds safe client config installer with dry-run, --apply (with timestamped backup and JSON validation), --rollback, --status, and --write-snippets modes. Supported: Claude Desktop (merge mcpServers). Unsupported clients stay MANUAL_REQUIRED, not FAIL.",
+      "summary": "Adds safe client config installer with dry-run, --apply (with timestamped backup and JSON validation), --rollback, --status, and --write-snippets modes. Supported: Claude Desktop (merge mcpServers). Unsupported clients stay MANUAL_REQUIRED, not FAIL. Real Claude Desktop install verified.",
       "verification": {
         "unit_tests": "python3 -m unittest tests.test_mcp_configure",
         "full_tests": "python3 -m unittest discover -s tests",
         "smoke": "./scripts/smoke-mcp-configure.sh",
         "configure": "./scripts/slimyos-mcp-configure.sh",
-        "status": "./scripts/slimyos-mcp-configure.sh --status"
+        "status": "./scripts/slimyos-mcp-configure.sh --status",
+        "real_apply_proof": "/tmp/proof_slimyos_real_claude_desktop_apply_20260515T165623Z"
       }
     }
   ]
