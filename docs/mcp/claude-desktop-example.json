@@ -11,3 +11,21 @@
     }
   }
 }
+
+To apply this config safely with backup:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --apply
+```
+
+To check whether SlimyOS MCP is installed:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --status
+```
+
+To rollback to previous config:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --rollback
+```

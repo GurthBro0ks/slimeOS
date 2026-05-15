@@ -34,3 +34,18 @@ Operator sanity checks:
 ```
 
 Both commands are dry-run checks and do not overwrite client configs by default.
+
+To generate config snippets:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --write-snippets
+```
+
+To check whether a config is already installed:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --status
+```
+
+Config for Claude Code is classified as MANUAL_REQUIRED since no safe file-based
+config path is confidently detected. Use the generated snippet above.

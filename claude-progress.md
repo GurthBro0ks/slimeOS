@@ -62,3 +62,29 @@
 - MCP doctor proof directory: `/tmp/proof_slimyos_mcp_doctor_20260515T161044Z`
 - MCP doctor result: `PASS`
 - MCP healthline output: `SlimyOS MCP: PASS | broker=ok tools=43 dashboard=ok claude=found codex=found opencode=found hermes=warn/auth_required_or_proxy_down policy=blocked_raw_shell`
+
+## Session: MCP Client Config Apply + Rollback
+
+- Added safe MCP client config installer: `scripts/slimyos-mcp-configure.sh`.
+- Added helper module: `adapters/mcp_configure.py`.
+- Added smoke test: `scripts/smoke-mcp-configure.sh`.
+- Added test coverage: `tests/test_mcp_configure.py` (25 tests).
+- Modes: dry-run (default), --write-snippets, --apply, --rollback, --status.
+- Claude Desktop: safe merge of mcpServers with backup, validation, and rollback.
+- Claude Code, OpenCode, Codex: classified as MANUAL_REQUIRED (not FAIL).
+- Safety: default is dry-run (no mutation), --apply requires explicit flag, every apply creates timestamped backup, every changed config is JSON validated, --rollback restores latest backup.
+- No secrets, no provider login, no raw shell, no privileged changes.
+
+## Proof
+
+- MCP configure smoke proof directory: generated per run in `/tmp/proof_slimyos_mcp_configure_smoke_<UTC>/`
+- All 42 unit tests pass (including 25 new configure tests).
+
+## Client Support Matrix
+
+| Client | Status | Notes |
+|---|---|---|
+| Claude Desktop | Supported | Merge mcpServers, backup, validate, rollback |
+| Claude Code | MANUAL_REQUIRED | No safe file-based config path detected |
+| OpenCode | MANUAL_REQUIRED | No safe file-based config path detected |
+| Codex | MANUAL_REQUIRED | No safe file-based config path detected |

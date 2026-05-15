@@ -115,6 +115,36 @@ Run MCP healthline (compact operator status):
 ./scripts/slimyos-mcp-healthline.sh
 ```
 
+Dry-run MCP client config detection (no mutation):
+
+```bash
+./scripts/slimyos-mcp-configure.sh
+```
+
+Write generated config snippets to `docs/generated/` (no user config mutation):
+
+```bash
+./scripts/slimyos-mcp-configure.sh --write-snippets
+```
+
+Safely apply MCP config for supported clients (Claude Desktop) with backup:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --apply
+```
+
+Rollback to latest backup:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --rollback
+```
+
+Show current config status (no mutation):
+
+```bash
+./scripts/slimyos-mcp-configure.sh --status
+```
+
 Client preflight is non-privileged, read-only, and does not require secrets,
 provider login, or API keys. It validates that external clients can discover
 and call SlimyOS through the broker and that dangerous/raw-shell paths remain
@@ -154,6 +184,29 @@ What is intentionally not automated yet:
 MCP doctor and healthline do not require secrets or provider login. They only
 validate local broker-backed MCP wiring and preserve policy enforcement through
 Tool Broker.
+
+MCP configure provides safe client config apply and rollback:
+
+```bash
+# Dry-run: detect config paths, generate snippets (no mutation)
+./scripts/slimyos-mcp-configure.sh
+
+# Write generated snippets to docs/generated/ only
+./scripts/slimyos-mcp-configure.sh --write-snippets
+
+# Apply config for supported clients (Claude Desktop) with backup
+./scripts/slimyos-mcp-configure.sh --apply
+
+# Rollback to latest backup
+./scripts/slimyos-mcp-configure.sh --rollback
+
+# Show current config status (no mutation)
+./scripts/slimyos-mcp-configure.sh --status
+```
+
+Default mode is always dry-run. `--apply` requires explicit flag, creates a
+timestamped backup, and validates JSON after write. `--rollback` restores the
+latest backup. Unsupported/uncertain clients stay `MANUAL_REQUIRED`, not FAIL.
 
 Portability note: some harnesses use `/home/slimy/*` paths, but many developer
 machines run as different users (for example, Mint user `mint`). Project

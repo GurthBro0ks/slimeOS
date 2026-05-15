@@ -29,3 +29,18 @@ Use the doctor workflow before wiring production configs:
 ./scripts/slimyos-mcp-doctor.sh
 ./scripts/slimyos-mcp-healthline.sh
 ```
+
+To generate config snippets:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --write-snippets
+```
+
+To check install status:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --status
+```
+
+Codex config is classified as MANUAL_REQUIRED since no safe file-based config
+path is confidently detected. Use the notes above to configure manually.
