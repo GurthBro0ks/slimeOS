@@ -27,6 +27,17 @@ SECRET_KEY_PATTERNS = re.compile(
 )
 
 
+def _extract_content_data(response: dict[str, Any]) -> dict[str, Any]:
+    content = response.get("result", {}).get("content", [])
+    if content and isinstance(content, list) and len(content) > 0:
+        text = content[0].get("text", "{}")
+        try:
+            return json.loads(text)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    return {}
+
+
 def load_claude_desktop_config(config_path: str) -> dict[str, Any]:
     raw = Path(config_path).read_text(encoding="utf-8")
     return json.loads(raw)
@@ -138,9 +149,7 @@ def run_mcp_checks(
                 },
             }
         )
-        safe_struct = results["safe_call"].get("result", {}).get(
-            "structuredContent", {}
-        )
+        safe_struct = _extract_content_data(results["safe_call"])
         if not safe_struct.get("success"):
             errors.append("safe_call_not_success")
 
@@ -155,9 +164,7 @@ def run_mcp_checks(
                 },
             }
         )
-        blocked_struct = results["blocked_call"].get("result", {}).get(
-            "structuredContent", {}
-        )
+        blocked_struct = _extract_content_data(results["blocked_call"])
         if blocked_struct.get("disposition") != "blocked":
             errors.append(
                 f"raw_shell_not_blocked:{blocked_struct.get('disposition')}"
@@ -174,9 +181,7 @@ def run_mcp_checks(
                 },
             }
         )
-        gated_struct = results["gated_call"].get("result", {}).get(
-            "structuredContent", {}
-        )
+        gated_struct = _extract_content_data(results["gated_call"])
         if gated_struct.get("disposition") not in {"blocked", "approval_required"}:
             errors.append(
                 f"restart_service_not_gated:{gated_struct.get('disposition')}"
@@ -355,27 +360,18 @@ def run_full_verification(
     (out / "RESULT.txt").write_text(f"RESULT={result}\n")
 
     tool_count = mcp_results.get("results", {}).get("tool_count", 0)
-    safe_success = (
-        mcp_results.get("results", {})
-        .get("safe_call", {})
-        .get("result", {})
-        .get("structuredContent", {})
-        .get("success", False)
+    safe_data = _extract_content_data(
+        mcp_results.get("results", {}).get("safe_call", {})
     )
-    blocked_disp = (
-        mcp_results.get("results", {})
-        .get("blocked_call", {})
-        .get("result", {})
-        .get("structuredContent", {})
-        .get("disposition", "")
+    safe_success = safe_data.get("success", False)
+    blocked_data = _extract_content_data(
+        mcp_results.get("results", {}).get("blocked_call", {})
     )
-    gated_disp = (
-        mcp_results.get("results", {})
-        .get("gated_call", {})
-        .get("result", {})
-        .get("structuredContent", {})
-        .get("disposition", "")
+    blocked_disp = blocked_data.get("disposition", "")
+    gated_data = _extract_content_data(
+        mcp_results.get("results", {}).get("gated_call", {})
     )
+    gated_disp = gated_data.get("disposition", "")
 
     meta = {
         "timestamp": datetime.now(timezone.utc).isoformat(),

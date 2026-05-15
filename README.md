@@ -176,10 +176,12 @@ Start local MCP bridge server:
 ```
 
 This MCP bridge is intentionally minimal and safe:
-- Supports `initialize`, `tools/list`, and `tools/call`
+- Supports `initialize`, `ping`, `notifications/initialized`, `tools/list`, and `tools/call`
+- Strict JSON-RPC 2.0 over stdio; stdout is protocol-only, logs go to stderr
 - Proxies every call to `http://localhost:3003` Tool Broker
 - Preserves policy outcomes (`allowed`, `blocked`, `approval_required`)
 - Fails closed if Tool Broker is unreachable
+- Compatible with Claude Desktop's MCP client parser
 
 What is intentionally not automated yet:
 - Provider logins (including Hermes auth)
@@ -232,6 +234,15 @@ If Claude Desktop fails to load MCP after apply, rollback:
 
 Hermes auth is unrelated to Claude Desktop MCP bridge — the MCP server connects
 to Tool Broker directly over localhost.
+
+Test Claude Desktop MCP protocol compatibility:
+
+```bash
+./scripts/smoke-claude-mcp-protocol.sh
+```
+
+This verifies string/numeric id preservation, notification handling, stdout purity,
+no extra keys in responses, and proper JSON-RPC error shape.
 
 Portability note: some harnesses use `/home/slimy/*` paths, but many developer
 machines run as different users (for example, Mint user `mint`). Project

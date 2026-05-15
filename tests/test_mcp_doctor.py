@@ -57,9 +57,9 @@ class MCPDoctorTests(unittest.TestCase):
         responses = {
             1: {"result": {"serverInfo": {}}},
             2: {"result": {"tools": [{} for _ in range(43)]}},
-            3: {"result": {"structuredContent": {"success": True}}},
-            4: {"result": {"structuredContent": {"disposition": "allowed"}}},
-            5: {"result": {"structuredContent": {"disposition": "blocked"}}},
+            3: {"result": {"content": [{"type": "text", "text": '{"success": true}'}]}},
+            4: {"result": {"content": [{"type": "text", "text": '{"disposition": "allowed"}'}]}},
+            5: {"result": {"content": [{"type": "text", "text": '{"disposition": "blocked"}'}]}},
         }
 
         def fake_mcp(repo_root, payload):

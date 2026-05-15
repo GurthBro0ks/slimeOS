@@ -134,3 +134,38 @@
 - Claude Desktop process: running
 - All 60 unit tests pass (including 18 new verify tests).
 - All smoke/verification scripts pass.
+
+## Session: Fix MCP Bridge for Claude Desktop Compatibility
+
+- Claude Desktop showed `invalid_union / invalid input` errors when loading SlimyOS MCP.
+- Root cause: MCP server responses had non-standard fields rejected by Claude Desktop's Zod schema.
+- Fixed `adapters/mcp_server.py`:
+  - Removed `timestamp` and `hostname` from error objects (only `code`, `message`, `data` allowed).
+  - Removed `x_slimyos` extra key from tool definitions.
+  - Removed `structuredContent` from tools/call responses (Claude Desktop doesn't expect it).
+  - Added notification detection: messages without `id` produce no response.
+  - Added `notifications/initialized` handling (silent).
+  - Added `ping` method support.
+  - Added exception handling in stdio loop (errors go to stderr, not stdout).
+  - All logs/diagnostics go to stderr only. stdout is protocol-only.
+- Updated all downstream code to parse broker results from `content[0].text` instead of `structuredContent`:
+  - `adapters/mcp_doctor.py`
+  - `adapters/claude_desktop_verify.py`
+  - `scripts/smoke-mcp-bridge.sh`
+  - `tests/test_mcp_bridge.py`
+  - `tests/test_mcp_doctor.py`
+- Added Claude-style protocol smoke test: `scripts/smoke-claude-mcp-protocol.sh`.
+- Added 7 new unit tests for strict MCP compliance (string id, numeric id, notification, ping, unknown method, content shape, no extra keys).
+- 67 unit tests all pass.
+
+## Proof
+
+- Claude MCP protocol smoke: `/tmp/proof_slimyos_claude_mcp_protocol_20260515T172447Z`
+- Result: PASS
+- String id preservation: PASS
+- Numeric id preservation: PASS
+- Notification produces no response: PASS
+- Stdout purity (all lines valid JSON-RPC): PASS
+- No raw error leakage: PASS
+- No extra keys in tool definitions: PASS
+- No structuredContent in responses: PASS

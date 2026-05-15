@@ -247,7 +247,13 @@ def run_mcp_doctor(
                 },
             },
         )
-        safe_struct = mcp_safe.get("result", {}).get("structuredContent", {})
+        safe_struct = mcp_safe.get("result", {})
+        content = safe_struct.get("content", [])
+        if content and isinstance(content, list) and len(content) > 0:
+            try:
+                safe_struct = json.loads(content[0].get("text", "{}"))
+            except (json.JSONDecodeError, TypeError):
+                pass
         if not safe_struct.get("success"):
             errors.append("mcp_safe_call_not_success")
     except Exception as exc:  # noqa: BLE001
@@ -263,7 +269,13 @@ def run_mcp_doctor(
                 "params": {"name": "slimyos_raw_shell", "arguments": {"command": "rm -rf /"}},
             },
         )
-        blocked_struct = mcp_blocked.get("result", {}).get("structuredContent", {})
+        blocked_struct = mcp_blocked.get("result", {})
+        content = blocked_struct.get("content", [])
+        if content and isinstance(content, list) and len(content) > 0:
+            try:
+                blocked_struct = json.loads(content[0].get("text", "{}"))
+            except (json.JSONDecodeError, TypeError):
+                pass
         if blocked_struct.get("disposition") != "blocked":
             errors.append("mcp_raw_shell_not_blocked")
     except Exception as exc:  # noqa: BLE001
@@ -279,7 +291,13 @@ def run_mcp_doctor(
                 "params": {"name": "slimyos_restart_service", "arguments": {"service_name": "sshd"}},
             },
         )
-        gated_struct = mcp_gated.get("result", {}).get("structuredContent", {})
+        gated_struct = mcp_gated.get("result", {})
+        content = gated_struct.get("content", [])
+        if content and isinstance(content, list) and len(content) > 0:
+            try:
+                gated_struct = json.loads(content[0].get("text", "{}"))
+            except (json.JSONDecodeError, TypeError):
+                pass
         if gated_struct.get("disposition") not in {"blocked", "approval_required"}:
             errors.append("mcp_restart_service_not_gated")
     except Exception as exc:  # noqa: BLE001

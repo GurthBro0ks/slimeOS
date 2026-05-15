@@ -75,7 +75,13 @@ try:
         },
     })
     (proof_dir / "mcp_safe_call.json").write_text(json.dumps(safe_resp, indent=2))
-    safe_struct = safe_resp.get("result", {}).get("structuredContent", {})
+    safe_content = safe_resp.get("result", {}).get("content", [])
+    safe_struct = {}
+    if safe_content:
+        try:
+            safe_struct = json.loads(safe_content[0].get("text", "{}"))
+        except (json.JSONDecodeError, TypeError):
+            pass
     if not safe_struct.get("success", False):
         errors.append("mcp_safe_call_failed")
 
@@ -89,7 +95,13 @@ try:
         },
     })
     (proof_dir / "mcp_blocked_call.json").write_text(json.dumps(blocked_resp, indent=2))
-    blocked_struct = blocked_resp.get("result", {}).get("structuredContent", {})
+    blocked_content = blocked_resp.get("result", {}).get("content", [])
+    blocked_struct = {}
+    if blocked_content:
+        try:
+            blocked_struct = json.loads(blocked_content[0].get("text", "{}"))
+        except (json.JSONDecodeError, TypeError):
+            pass
     if blocked_struct.get("disposition") != "blocked":
         errors.append(f"mcp_raw_shell_not_blocked:{blocked_struct.get('disposition')}")
 
@@ -103,7 +115,13 @@ try:
         },
     })
     (proof_dir / "mcp_gated_call.json").write_text(json.dumps(gated_resp, indent=2))
-    gated_struct = gated_resp.get("result", {}).get("structuredContent", {})
+    gated_content = gated_resp.get("result", {}).get("content", [])
+    gated_struct = {}
+    if gated_content:
+        try:
+            gated_struct = json.loads(gated_content[0].get("text", "{}"))
+        except (json.JSONDecodeError, TypeError):
+            pass
     if gated_struct.get("disposition") not in {"blocked", "approval_required"}:
         errors.append(f"mcp_restart_service_not_gated:{gated_struct.get('disposition')}")
 

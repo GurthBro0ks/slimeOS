@@ -1,16 +1,21 @@
 """SlimyOS MCP stdio bridge.
 
-This adapter exposes Tool Broker tools to MCP clients while preserving
-policy outcomes (allowed, blocked, approval_required).
+Strict MCP/JSON-RPC 2.0 stdio server compatible with Claude Desktop.
+
+Safety rules:
+- stdout contains ONLY valid JSON-RPC 2.0 protocol messages.
+- All logs, diagnostics, tracebacks go to stderr.
+- Notifications (messages without 'id') produce no stdout response.
+- Error responses use strict JSON-RPC shape (code, message, optional data).
+- Fail closed when Tool Broker is unreachable.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import socket
 import sys
-from datetime import datetime, timezone
+import traceback
 from typing import Any
 from urllib import error as urlerror
 from urllib import request as urlrequest
@@ -18,6 +23,10 @@ from urllib import request as urlrequest
 
 class BrokerUnavailableError(RuntimeError):
     pass
+
+
+def _log_stderr(msg: str) -> None:
+    print(f"[slimyos-mcp] {msg}", file=sys.stderr, flush=True)
 
 
 class SlimyMCPServer:
@@ -31,10 +40,13 @@ class SlimyMCPServer:
         self.agent_id = agent_id
         self.agent_runtime = agent_runtime
 
-    def handle_request(self, message: dict[str, Any]) -> dict[str, Any]:
+    def handle_request(self, message: dict[str, Any]) -> dict[str, Any] | None:
         msg_id = message.get("id")
         method = message.get("method")
-        params = message.get("params", {})
+        params = message.get("params") or {}
+
+        if msg_id is None and "method" in message:
+            return self._handle_notification(method, params)
 
         if method == "initialize":
             return self._result(
@@ -44,10 +56,13 @@ class SlimyMCPServer:
                     "capabilities": {"tools": {"listChanged": False}},
                     "serverInfo": {
                         "name": "slimyos-mcp-bridge",
-                        "version": "0.1.0",
+                        "version": "0.2.0",
                     },
                 },
             )
+
+        if method == "ping":
+            return self._result(msg_id, {})
 
         if method == "tools/list":
             try:
@@ -58,24 +73,20 @@ class SlimyMCPServer:
             tools = []
             for tool in tools_payload.get("tools", []):
                 name = tool.get("name", "")
-                metadata = {
-                    "risk_level": tool.get("risk_level", "unknown"),
-                    "requires_approval": bool(tool.get("requires_approval", False)),
-                    "work_room": tool.get("work_room", "unknown"),
-                    "action_level": tool.get("action_level", 0),
-                }
+                risk = tool.get("risk_level", "unknown")
+                approval = bool(tool.get("requires_approval", False))
+                work_room = tool.get("work_room", "unknown")
                 desc = tool.get("description", name)
                 description = (
-                    f"[SlimyOS {metadata['work_room']}] {desc}. "
-                    f"Risk: {metadata['risk_level']}. "
-                    f"{'Requires approval.' if metadata['requires_approval'] else 'Policy-gated.'}"
+                    f"[SlimyOS {work_room}] {desc}. "
+                    f"Risk: {risk}. "
+                    f"{'Requires approval.' if approval else 'Policy-gated.'}"
                 )
                 tools.append(
                     {
                         "name": f"slimyos_{name}",
                         "description": description,
                         "inputSchema": {"type": "object"},
-                        "x_slimyos": metadata,
                     }
                 )
 
@@ -88,24 +99,44 @@ class SlimyMCPServer:
 
             payload = {
                 "args": arguments,
-                "agent_id": params.get("agent_id", self.agent_id),
-                "agent_runtime": params.get("agent_runtime", self.agent_runtime),
-                "task_id": params.get("task_id", "mcp-task"),
+                "agent_id": self.agent_id,
+                "agent_runtime": self.agent_runtime,
+                "task_id": "mcp-task",
             }
             try:
-                tool_result = self._http_post_json(f"{self.broker_url}/tools/{tool_name}", payload)
+                tool_result = self._http_post_json(
+                    f"{self.broker_url}/tools/{tool_name}", payload
+                )
             except BrokerUnavailableError as exc:
                 return self._error(msg_id, -32001, f"Broker unreachable: {exc}")
 
             is_error = not bool(tool_result.get("success", False))
             body = {
-                "content": [{"type": "text", "text": json.dumps(tool_result)}],
-                "structuredContent": tool_result,
+                "content": [
+                    {"type": "text", "text": json.dumps(tool_result)}
+                ],
                 "isError": is_error,
             }
             return self._result(msg_id, body)
 
         return self._error(msg_id, -32601, f"Method not found: {method}")
+
+    def _handle_notification(
+        self, method: str, params: dict[str, Any]
+    ) -> None:
+        _log_stderr(f"notification: {method}")
+
+    @staticmethod
+    def _result(msg_id: Any, result: dict[str, Any]) -> dict[str, Any]:
+        return {"jsonrpc": "2.0", "id": msg_id, "result": result}
+
+    @staticmethod
+    def _error(msg_id: Any, code: int, message: str) -> dict[str, Any]:
+        return {
+            "jsonrpc": "2.0",
+            "id": msg_id,
+            "error": {"code": code, "message": message},
+        }
 
     def _http_get_json(self, url: str) -> dict[str, Any]:
         try:
@@ -114,7 +145,9 @@ class SlimyMCPServer:
         except (urlerror.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise BrokerUnavailableError(str(exc)) from exc
 
-    def _http_post_json(self, url: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def _http_post_json(
+        self, url: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         data = json.dumps(payload).encode()
         request = urlrequest.Request(
             url,
@@ -127,23 +160,6 @@ class SlimyMCPServer:
                 return json.loads(response.read())
         except (urlerror.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise BrokerUnavailableError(str(exc)) from exc
-
-    @staticmethod
-    def _result(msg_id: Any, result: dict[str, Any]) -> dict[str, Any]:
-        return {"jsonrpc": "2.0", "id": msg_id, "result": result}
-
-    @staticmethod
-    def _error(msg_id: Any, code: int, message: str) -> dict[str, Any]:
-        return {
-            "jsonrpc": "2.0",
-            "id": msg_id,
-            "error": {
-                "code": code,
-                "message": message,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "hostname": socket.gethostname(),
-            },
-        }
 
 
 def run_stdio_server(server: SlimyMCPServer) -> None:
@@ -162,8 +178,18 @@ def run_stdio_server(server: SlimyMCPServer) -> None:
             print(json.dumps(response), flush=True)
             continue
 
-        response = server.handle_request(message)
-        print(json.dumps(response), flush=True)
+        try:
+            response = server.handle_request(message)
+        except Exception as exc:
+            _log_stderr(f"handler error: {exc}\n{traceback.format_exc()}")
+            response = {
+                "jsonrpc": "2.0",
+                "id": message.get("id"),
+                "error": {"code": -32603, "message": "Internal error"},
+            }
+
+        if response is not None:
+            print(json.dumps(response), flush=True)
 
 
 def main() -> None:
@@ -175,6 +201,7 @@ def main() -> None:
         agent_id=agent_id,
         agent_runtime=agent_runtime,
     )
+    _log_stderr(f"starting slimyos-mcp-bridge broker={broker_url}")
     run_stdio_server(server)
 
 
