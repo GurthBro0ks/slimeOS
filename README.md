@@ -97,6 +97,12 @@ Run client adapter preflight:
 ./scripts/preflight-agent-clients.sh
 ```
 
+Run MCP bridge smoke verification:
+
+```bash
+./scripts/smoke-mcp-bridge.sh
+```
+
 Client preflight is non-privileged, read-only, and does not require secrets,
 provider login, or API keys. It validates that external clients can discover
 and call SlimyOS through the broker and that dangerous/raw-shell paths remain
@@ -112,6 +118,26 @@ Manual operator step when needed:
 hermes login nous
 # or your preferred provider login
 ```
+
+## MCP Bridge (Local Stdio)
+
+Start local MCP bridge server:
+
+```bash
+./scripts/run-mcp-server.sh
+```
+
+This MCP bridge is intentionally minimal and safe:
+- Supports `initialize`, `tools/list`, and `tools/call`
+- Proxies every call to `http://localhost:3003` Tool Broker
+- Preserves policy outcomes (`allowed`, `blocked`, `approval_required`)
+- Fails closed if Tool Broker is unreachable
+
+What is intentionally not automated yet:
+- Provider logins (including Hermes auth)
+- Secret management and API key injection
+- Privileged host changes
+- Browser account login automation
 
 Portability note: some harnesses use `/home/slimy/*` paths, but many developer
 machines run as different users (for example, Mint user `mint`). Project

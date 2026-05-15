@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "slimyos": {
+      "command": "/home/mint/Projects/slimeOS/scripts/run-mcp-server.sh",
+      "args": [],
+      "env": {
+        "SLIMYOS_TOOLD_URL": "http://localhost:3003",
+        "SLIMYOS_MCP_AGENT_ID": "claude-desktop",
+        "SLIMYOS_MCP_AGENT_RUNTIME": "claude-desktop"
+      }
+    }
+  }
+}

@@ -33,3 +33,18 @@
 - Client preflight result: `PASS`
 - Live runtime smoke result during this checkpoint: `PASS`
 - Checkpoint commit: `838a5220b351f912b2f2f0c4d74507bed88ba161`
+
+## Session: MCP Bridge (Local Stdio)
+
+- Added local MCP bridge adapter: `adapters/mcp_server.py`.
+- Added MCP launcher script: `scripts/run-mcp-server.sh`.
+- Added MCP smoke script: `scripts/smoke-mcp-bridge.sh`.
+- Added MCP bridge tests: `tests/test_mcp_bridge.py`.
+- Added MCP client docs/examples under `docs/mcp/` for Claude Desktop, Claude Code, OpenCode, and Codex.
+- Verified MCP bridge keeps policy path intact by preserving blocked and approval-gated responses from Tool Broker.
+
+## Proof
+
+- MCP bridge proof directory: `/tmp/proof_slimyos_mcp_bridge_20260515T155114Z`
+- MCP bridge smoke result: `PASS`
+- MCP tool count observed: `43`

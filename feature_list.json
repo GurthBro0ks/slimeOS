@@ -22,6 +22,18 @@
         "preflight": "./scripts/preflight-agent-clients.sh",
         "proof_dir": "/tmp/proof_slimyos_client_preflight_20260515T154235Z"
       }
+    },
+    {
+      "id": "mcp-stdio-bridge",
+      "title": "SlimyOS MCP stdio bridge",
+      "status": "implemented",
+      "summary": "Introduces a minimal local MCP server that exposes tool discovery and tool calls through slimy-toold while preserving policy outcomes (allowed/blocked/approval_required) and failing closed when broker is unavailable.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_mcp_bridge",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "smoke": "./scripts/smoke-mcp-bridge.sh",
+        "proof_dir": "/tmp/proof_slimyos_mcp_bridge_20260515T155114Z"
+      }
     }
   ]
 }
