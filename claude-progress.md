@@ -32,3 +32,4 @@
 - Client preflight proof directory: `/tmp/proof_slimyos_client_preflight_20260515T154235Z`
 - Client preflight result: `PASS`
 - Live runtime smoke result during this checkpoint: `PASS`
+- Checkpoint commit: `838a5220b351f912b2f2f0c4d74507bed88ba161`
