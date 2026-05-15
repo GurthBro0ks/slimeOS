@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/failure_memory.schema.json",
+  "title": "SlimyOS Failure Memory",
+  "description": "Records what went wrong, how it was detected, how it was fixed, and what rule prevents recurrence.",
+  "type": "object",
+  "required": ["failure_id", "timestamp", "what_was_tried", "what_failed", "how_detected"],
+  "properties": {
+    "failure_id": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "task_id": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "agent_runtime": { "type": "string" },
+    "work_room": { "type": "string" },
+    "what_was_tried": { "type": "string", "description": "Human-readable description of the attempted action." },
+    "what_failed": { "type": "string", "description": "What went wrong." },
+    "error_output": { "type": "string" },
+    "how_detected": {
+      "type": "string",
+      "enum": ["test_failure", "build_failure", "runtime_error", "policy_violation", "user_reported", "audit_anomaly", "proof_review", "panic_stop"],
+      "description": "How the failure was discovered."
+    },
+    "how_fixed": { "type": "string", "description": "How recovery was performed. Empty if not yet fixed." },
+    "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "new_rule": {
+      "type": "object",
+      "description": "Suggested policy rule to prevent recurrence.",
+      "properties": {
+        "description": { "type": "string" },
+        "tool": { "type": "string" },
+        "constraint": { "type": "string" },
+        "proof_gate": { "type": "string" }
+      }
+    },
+    "linked_proof_pack": { "type": "string", "description": "proof_pack_id of the related task." },
+    "linked_audit_events": { "type": "array", "items": { "type": "string" } },
+    "recurrence_count": { "type": "integer", "default": 0, "description": "How many times similar failures have occurred." },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  }
+}

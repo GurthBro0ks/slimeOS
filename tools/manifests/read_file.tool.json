@@ -1,0 +1,1 @@
+{"name":"read_file","version":"0.1.0","description":"Read file contents within allowed paths.","risk_level":"low","action_level":0,"work_room":"code","requires_approval":false,"parameters":{"type":"object","required":["path"],"properties":{"path":{"type":"string"},"max_lines":{"type":"integer","default":500}}},"rollback_behavior":"none","audit_level":"minimal"}

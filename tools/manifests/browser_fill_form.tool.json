@@ -1,0 +1,14 @@
+{
+  "name": "browser_fill_form",
+  "version": "0.1.0",
+  "description": "Browser Room: browser fill form",
+  "risk_level": "medium",
+  "action_level": 4,
+  "work_room": "browser",
+  "requires_approval": false,
+  "sandbox_required": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

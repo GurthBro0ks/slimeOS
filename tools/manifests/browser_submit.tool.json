@@ -1,0 +1,14 @@
+{
+  "name": "browser_submit",
+  "version": "0.1.0",
+  "description": "Browser Room: browser submit",
+  "risk_level": "high",
+  "action_level": 4,
+  "work_room": "browser",
+  "requires_approval": true,
+  "sandbox_required": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

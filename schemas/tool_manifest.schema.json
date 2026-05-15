@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/tool_manifest.schema.json",
+  "title": "SlimyOS Tool Manifest",
+  "description": "Defines a single tool that agents can request through slimy-toold.",
+  "type": "object",
+  "required": ["name", "version", "description", "risk_level", "action_level", "work_room", "parameters"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "risk_level": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "action_level": { "type": "integer", "minimum": 0, "maximum": 7 },
+    "work_room": { "type": "string", "enum": ["research", "code", "browser", "sandbox", "desktop", "ops"] },
+    "requires_approval": { "type": "boolean", "default": false },
+    "requires_snapshot": { "type": "boolean", "default": false },
+    "sandbox_required": { "type": "boolean", "default": false },
+    "allowed_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Filesystem paths this tool may access. Empty = uses policy defaults."
+    },
+    "allowed_args": {
+      "type": "object",
+      "description": "Constraints on argument values (e.g., allowed_services list)."
+    },
+    "parameters": {
+      "type": "object",
+      "description": "JSON Schema for the tool's input parameters."
+    },
+    "returns": {
+      "type": "object",
+      "description": "JSON Schema for the tool's return value."
+    },
+    "rollback_behavior": {
+      "type": "string",
+      "enum": ["none", "undo_command", "snapshot_restore", "manual"],
+      "default": "none"
+    },
+    "audit_level": {
+      "type": "string",
+      "enum": ["minimal", "standard", "full"],
+      "default": "standard"
+    }
+  }
+}

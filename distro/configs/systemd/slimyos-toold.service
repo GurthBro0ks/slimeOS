@@ -1,0 +1,12 @@
+[Unit]
+Description=SlimyOS Tool Broker HTTP API
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.slimyos/adapters/serve.py
+Restart=on-failure
+WorkingDirectory=%h/.slimyos
+
+[Install]
+WantedBy=default.target

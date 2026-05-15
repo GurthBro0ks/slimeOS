@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/approval_request.schema.json",
+  "title": "SlimyOS Approval Request",
+  "type": "object",
+  "required": ["request_id", "timestamp", "agent_id", "tool_name", "reason", "status"],
+  "properties": {
+    "request_id": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "task_id": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "agent_runtime": { "type": "string" },
+    "tool_name": { "type": "string" },
+    "tool_args": { "type": "object" },
+    "reason": { "type": "string", "description": "Why approval is needed (policy rule that triggered it)." },
+    "risk_level": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "status": { "type": "string", "enum": ["pending", "approved", "denied", "expired", "auto_denied"] },
+    "decided_by": { "type": "string", "description": "Who approved/denied: user, phone, dashboard, timeout." },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "context": { "type": "string", "description": "What the agent is trying to accomplish." }
+  }
+}

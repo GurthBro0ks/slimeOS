@@ -1,0 +1,13 @@
+{
+  "name": "pm2_status",
+  "version": "0.1.0",
+  "description": "Ops Room: pm2 status",
+  "risk_level": "low",
+  "action_level": 0,
+  "work_room": "ops",
+  "requires_approval": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

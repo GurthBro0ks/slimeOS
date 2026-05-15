@@ -1,0 +1,14 @@
+{
+  "name": "browser_read_page",
+  "version": "0.1.0",
+  "description": "Browser Room: browser read page",
+  "risk_level": "low",
+  "action_level": 4,
+  "work_room": "browser",
+  "requires_approval": false,
+  "sandbox_required": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

@@ -1,0 +1,26 @@
+/* slimy-dashboard hero section */
+.hero {
+  background: #0a0e1a;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.hero h1 {
+  color: #e2e8f0;
+  font-size: 2.5rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hero .accent-line {
+  width: 120px;
+  height: 4px;
+  background: #06d6a0;  /* FIXED: SlimyOS accent color */
+  margin: 16px auto;
+  border-radius: 2px;
+}
+
+.hero .subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 12px;
+}

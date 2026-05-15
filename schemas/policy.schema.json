@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/policy.schema.json",
+  "title": "SlimyOS Policy",
+  "description": "Defines what agents are allowed, blocked, escalated, or sandboxed.",
+  "type": "object",
+  "required": ["version", "default_mode", "dangerous_actions", "blocked_paths", "allowed_project_roots"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
+    "default_mode": {
+      "type": "string",
+      "enum": ["block", "draft", "approve", "allow"],
+      "description": "Default disposition for actions not covered by specific rules."
+    },
+    "dangerous_actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tool names that always require approval or are blocked."
+    },
+    "blocked_actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tool names that are always blocked, no override."
+    },
+    "blocked_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Filesystem paths agents may never read or write."
+    },
+    "allowed_project_roots": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Directories where agents may operate freely."
+    },
+    "require_snapshot_before": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Actions requiring filesystem snapshot before execution."
+    },
+    "require_approval": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Actions requiring human approval before execution."
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "max_tool_calls_per_task": { "type": "integer", "minimum": 1 },
+        "max_tool_calls_per_day": { "type": "integer", "minimum": 1 },
+        "max_cost_usd_per_day": { "type": "number", "minimum": 0 }
+      }
+    },
+    "tool_overrides": {
+      "type": "object",
+      "description": "Per-tool policy overrides keyed by tool name.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "disposition": { "type": "string", "enum": ["allow", "block", "approve", "sandbox"] },
+          "allowed_args": { "type": "object" },
+          "max_calls_per_task": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "host_session_create",
+  "version": "0.1.0",
+  "description": "Desktop Room: host session create",
+  "risk_level": "critical",
+  "action_level": 6,
+  "work_room": "desktop",
+  "requires_approval": true,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "full"
+}

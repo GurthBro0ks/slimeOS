@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+venv/
+node_modules/
+*.log
+.DS_Store
+~/.slimyos/audit/
+~/.slimyos/proofs/
+~/.slimyos/memory/
+~/.slimyos/secrets/

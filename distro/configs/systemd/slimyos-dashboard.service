@@ -1,0 +1,13 @@
+[Unit]
+Description=SlimyOS Mission Control Dashboard
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.slimyos/dashboard/mission_control.py
+Restart=on-failure
+RestartSec=5
+Environment=SLIMYOS_PORT=3002
+
+[Install]
+WantedBy=default.target

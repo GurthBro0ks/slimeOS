@@ -1,0 +1,1 @@
+{"name":"list_directory","version":"0.1.0","description":"List directory contents.","risk_level":"low","action_level":0,"work_room":"code","requires_approval":false,"parameters":{"type":"object","properties":{"path":{"type":"string","default":"."}}},"rollback_behavior":"none","audit_level":"minimal"}

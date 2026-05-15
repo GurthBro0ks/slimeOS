@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SlimyOS Proof Pack — fix-hero-accent-line</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    background: #0a0e1a; color: #e2e8f0; padding: 20px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .header {
+    background: #111827; border: 1px solid #1e293b; border-radius: 12px;
+    padding: 24px; margin-bottom: 20px; text-align: center;
+  }
+  .header h1 { color: #06d6a0; font-size: 22px; margin-bottom: 8px; }
+  .header .subtitle { color: #64748b; font-size: 12px; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 700; margin: 4px;
+  }
+  .badge-success { background: #06d6a022; color: #06d6a0; border: 1px solid #06d6a044; }
+  .badge-failure { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
+  .badge-blocked { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+  .badge-pending { background: #7c3aed22; color: #7c3aed; border: 1px solid #7c3aed44; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-bottom: 20px;
+  }
+  .stat {
+    background: #111827; border: 1px solid #1e293b; border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .stat .number { font-size: 28px; font-weight: 800; color: #06d6a0; }
+  .stat .label { font-size: 10px; color: #64748b; margin-top: 4px; text-transform: uppercase; }
+  .section {
+    background: #111827; border: 1px solid #1e293b; border-radius: 10px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .section h2 {
+    color: #06d6a0; font-size: 14px; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid #1e293b;
+  }
+  .event {
+    padding: 10px; border-left: 3px solid #1e293b; margin-bottom: 8px;
+    font-size: 12px; line-height: 1.6;
+  }
+  .event.allowed { border-left-color: #06d6a0; }
+  .event.blocked { border-left-color: #ef4444; }
+  .event.approval_required { border-left-color: #f59e0b; }
+  .event .time { color: #64748b; }
+  .event .tool { color: #7c3aed; font-weight: 700; }
+  .event .disposition { font-weight: 700; }
+  .event .disposition.allowed { color: #06d6a0; }
+  .event .disposition.blocked { color: #ef4444; }
+  .event .disposition.approval_required { color: #f59e0b; }
+  .event .rule { color: #64748b; font-style: italic; }
+  pre {
+    background: #0a0e1a; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 12px; font-size: 11px; overflow-x: auto; color: #94a3b8;
+    margin: 8px 0;
+  }
+  .footer {
+    text-align: center; padding: 20px; color: #64748b; font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🐌 SlimyOS Proof Pack</h1>
+  <div class="subtitle">Task: fix-hero-accent-line</div>
+  <div class="subtitle">Fix hero accent line: #00ff00 → #06d6a0. Tests fail before, pass after. Diff captured. Phone-approved commit.</div>
+  <div style="margin-top: 12px;">
+    <span class="badge badge-success">SUCCESS</span>
+    <span class="badge" style="background:#111827;color:#64748b;border:1px solid #1e293b">slimyos-demo</span>
+  </div>
+  <div class="subtitle" style="margin-top: 8px;">
+    2026-05-15 14:52:29 UTC — Duration: 0.1s
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="number">47</div><div class="label">Events</div></div>
+  <div class="stat"><div class="number" style="color:#06d6a0">30</div><div class="label">Allowed</div></div>
+  <div class="stat"><div class="number" style="color:#ef4444">0</div><div class="label">Blocked</div></div>
+  <div class="stat"><div class="number" style="color:#f59e0b">2</div><div class="label">Approval</div></div>
+  <div class="stat"><div class="number">2</div><div class="label">Files Changed</div></div>
+</div>
+
+<div class="section">
+  <h2>📋 Event Timeline</h2>
+  
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_status.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_status.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.list_directory.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.list_directory.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.list_directory.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">list_directory</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.list_directory.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">read_file</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">read_file</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.read_file.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">read_file</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.read_file.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_create_branch</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "branch_name": "fix-hero-accent-color"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_create_branch</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_create_branch.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "branch_name": "fix-hero-accent-color"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_create_branch</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_create_branch.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "branch_name": "fix-hero-accent-color"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_status.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_status</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_status.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "BEFORE fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.file_snapshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "BEFORE fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.file_snapshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "BEFORE fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.run_tests_real.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.run_tests_real.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">write_file</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "content": "/* slimy-dashboard hero section */\n.hero {\n  background: #0a0e1a;\n  padding: 48px 24px;\n  text-align: center;
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">write_file</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.write_file.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "content": "/* slimy-dashboard hero section */\n.hero {\n  background: #0a0e1a;\n  padding: 48px 24px;\n  text-align: center;
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">write_file</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.write_file.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "content": "/* slimy-dashboard hero section */\n.hero {\n  background: #0a0e1a;\n  padding: 48px 24px;\n  text-align: center;
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.run_tests_real.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">run_tests_real</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.run_tests_real.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"project_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "test_command": "python3 tests/test_theme.py"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "AFTER fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.file_snapshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "AFTER fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">file_snapshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.file_snapshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css", "label": "AFTER fix"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_add</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "files": ["src/styles/hero.css"]}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_add</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_add.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "files": ["src/styles/hero.css"]}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_add</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_add.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "files": ["src/styles/hero.css"]}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_diff</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "staged": true}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_diff</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_diff.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "staged": true}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_diff</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_diff.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "staged": true}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_commit</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "message": "fix: hero accent line color #00ff00 \u2192 #06d6a0"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_commit</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.git_commit.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "message": "fix: hero accent line color #00ff00 \u2192 #06d6a0"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_commit</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.git_commit.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "message": "fix: hero accent line color #00ff00 \u2192 #06d6a0"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_commit</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_commit</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">approval_granted</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_log</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "count": 3}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_log</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_log.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "count": 3}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">git_log</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.git_log.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard", "count": 3}
+              </div>
+              
+            </div>
+            
+</div>
+
+
+            <div class="section">
+              <h2>📁 Files Changed</h2>
+              <ul style="list-style:none;padding:0;"><li>/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css</li>
+<li>src/styles/hero.css</li></ul>
+            </div>
+            
+
+<div class="section">
+  <h2>📊 Raw Audit Data</h2>
+  <pre>[
+  {
+    "event_id": "c9cd4d65-0414-47b1-8e48-ff20fbef90eb",
+    "timestamp": "2026-05-15T14:52:29.202076+00:00",
+    "event_type": "tool_request",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "git_status",
+    "tool_args": {
+      "repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "d81a30a6-3a34-40f5-a8f9-6f6789b1b836",
+    "timestamp": "2026-05-15T14:52:29.202304+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "git_status",
+    "tool_args": {
+      "repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.git_status.disposition",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "4aa4d298-4ca3-46a2-9632-c09e45b00a48",
+    "timestamp": "2026-05-15T14:52:29.209990+00:00",
+    "event_type": "tool_executed",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "git_status",
+    "tool_args": {
+      "repo_path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "allowed",
+    "result": {
+      "success": true,
+      "output": "Branch: master\nStatus:\n(clean)\nRecent commits:\n7c9bd30 Initial commit: dashboard with hero CSS bug"
+    },
+    "policy_rule": "tool_overrides.git_status.disposition",
+    "work_room": "code",
+    "risk_level": "",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "9aba6621-16fe-4db5-a3c5-c3f15b6e99e8",
+    "timestamp": "2026-05-15T14:52:29.210089+00:00",
+    "event_type": "tool_request",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "list_directory",
+    "tool_args": {
+      "path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "4f74f7b6-ef80-46fe-97a8-ff6cf01a0df1",
+    "timestamp": "2026-05-15T14:52:29.210299+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "list_directory",
+    "tool_args": {
+      "path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.list_directory.disposition",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "ab72df5c-a4e4-4b12-8760-e1561596e9e4",
+    "timestamp": "2026-05-15T14:52:29.210408+00:00",
+    "event_type": "tool_executed",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "list_directory",
+    "tool_args": {
+      "path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard"
+    },
+    "disposition": "allowed",
+    "result": {
+      "success": true,
+      "output": ".git\nREADME.md\npackage.json\nsrc\ntests"
+    },
+    "policy_rule": "tool_overrides.list_directory.disposition",
+    "work_room": "code",
+    "risk_level": "",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "06e7dcea-d01d-41a7-963b-7bb2c4e9d817",
+    "timestamp": "2026-05-15T14:52:29.210457+00:00",
+    "event_type": "tool_request",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "list_directory",
+    "tool_args": {
+      "path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "92cc07a8-97ce-419a-b544-97d133a2a8e5",
+    "timestamp": "2026-05-15T14:52:29.210630+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "fix-hero-accent-line",
+    "agent_id": "coding-agent-01",
+    "agent_runtime": "slimyos-demo",
+    "tool_name": "list_directory",
+    "tool_args": {
+      "path": "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.list_directory.disposition",
+    "work_room": "code",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "5c442f12-4696-4586-b0dc-a23cfaefa02a",
+    "timestamp": "2026-05-15T14:52:29.210700+00:00",
+    "event_type": "tool_executed",
+    "task_id": "fix-</pre>
+</div>
+
+<div class="footer">
+  🐌 SlimyOS Habitat — Proof Pack v0.1<br>
+  Generated 2026-05-15T14:52:29.286920+00:00
+</div>
+
+</body>
+</html>

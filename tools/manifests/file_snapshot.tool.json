@@ -1,0 +1,1 @@
+{"name":"file_snapshot","version":"0.1.0","description":"Capture file content for before/after proof.","risk_level":"low","action_level":0,"work_room":"code","requires_approval":false,"parameters":{"type":"object","required":["path"],"properties":{"path":{"type":"string"},"label":{"type":"string","default":"snapshot"}}},"rollback_behavior":"none","audit_level":"minimal"}

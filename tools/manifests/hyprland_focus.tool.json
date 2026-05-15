@@ -1,0 +1,13 @@
+{
+  "name": "hyprland_focus",
+  "version": "0.1.0",
+  "description": "Desktop Room: hyprland focus",
+  "risk_level": "medium",
+  "action_level": 6,
+  "work_room": "desktop",
+  "requires_approval": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "full"
+}

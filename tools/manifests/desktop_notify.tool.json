@@ -1,0 +1,13 @@
+{
+  "name": "desktop_notify",
+  "version": "0.1.0",
+  "description": "Desktop Room: desktop notify",
+  "risk_level": "low",
+  "action_level": 0,
+  "work_room": "desktop",
+  "requires_approval": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "full"
+}

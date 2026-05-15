@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SlimyOS Proof Pack — research-hyprland-compat</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    background: #0a0e1a; color: #e2e8f0; padding: 20px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .header {
+    background: #111827; border: 1px solid #1e293b; border-radius: 12px;
+    padding: 24px; margin-bottom: 20px; text-align: center;
+  }
+  .header h1 { color: #06d6a0; font-size: 22px; margin-bottom: 8px; }
+  .header .subtitle { color: #64748b; font-size: 12px; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 700; margin: 4px;
+  }
+  .badge-success { background: #06d6a022; color: #06d6a0; border: 1px solid #06d6a044; }
+  .badge-failure { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
+  .badge-blocked { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+  .badge-pending { background: #7c3aed22; color: #7c3aed; border: 1px solid #7c3aed44; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-bottom: 20px;
+  }
+  .stat {
+    background: #111827; border: 1px solid #1e293b; border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .stat .number { font-size: 28px; font-weight: 800; color: #06d6a0; }
+  .stat .label { font-size: 10px; color: #64748b; margin-top: 4px; text-transform: uppercase; }
+  .section {
+    background: #111827; border: 1px solid #1e293b; border-radius: 10px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .section h2 {
+    color: #06d6a0; font-size: 14px; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid #1e293b;
+  }
+  .event {
+    padding: 10px; border-left: 3px solid #1e293b; margin-bottom: 8px;
+    font-size: 12px; line-height: 1.6;
+  }
+  .event.allowed { border-left-color: #06d6a0; }
+  .event.blocked { border-left-color: #ef4444; }
+  .event.approval_required { border-left-color: #f59e0b; }
+  .event .time { color: #64748b; }
+  .event .tool { color: #7c3aed; font-weight: 700; }
+  .event .disposition { font-weight: 700; }
+  .event .disposition.allowed { color: #06d6a0; }
+  .event .disposition.blocked { color: #ef4444; }
+  .event .disposition.approval_required { color: #f59e0b; }
+  .event .rule { color: #64748b; font-style: italic; }
+  pre {
+    background: #0a0e1a; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 12px; font-size: 11px; overflow-x: auto; color: #94a3b8;
+    margin: 8px 0;
+  }
+  .footer {
+    text-align: center; padding: 20px; color: #64748b; font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🐌 SlimyOS Proof Pack</h1>
+  <div class="subtitle">Task: research-hyprland-compat</div>
+  <div class="subtitle">Research Hyprland v0.53 compatibility. Browser search allowed, form submit gated, purchase denied.</div>
+  <div style="margin-top: 12px;">
+    <span class="badge badge-success">SUCCESS</span>
+    <span class="badge" style="background:#111827;color:#64748b;border:1px solid #1e293b">hermes</span>
+  </div>
+  <div class="subtitle" style="margin-top: 8px;">
+    2026-05-15 14:52:33 UTC — Duration: 4.0s
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="number">30</div><div class="label">Events</div></div>
+  <div class="stat"><div class="number" style="color:#06d6a0">14</div><div class="label">Allowed</div></div>
+  <div class="stat"><div class="number" style="color:#ef4444">0</div><div class="label">Blocked</div></div>
+  <div class="stat"><div class="number" style="color:#f59e0b">6</div><div class="label">Approval</div></div>
+  <div class="stat"><div class="number">0</div><div class="label">Files Changed</div></div>
+</div>
+
+<div class="section">
+  <h2>📋 Event Timeline</h2>
+  
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_search</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"query": "Hyprland v0.53 breaking changes"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_search</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_search.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"query": "Hyprland v0.53 breaking changes"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_search</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_search.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"query": "Hyprland v0.53 breaking changes"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_navigate</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/hyprwm/Hyprland/releases"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_navigate</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_navigate.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/hyprwm/Hyprland/releases"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_navigate</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_navigate.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/hyprwm/Hyprland/releases"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_read_page</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://wiki.hyprland.org/Configuring/", "extract": "text"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_read_page</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_read_page.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://wiki.hyprland.org/Configuring/", "extract": "text"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_read_page</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_read_page.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://wiki.hyprland.org/Configuring/", "extract": "text"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_screenshot</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"label": "hyprland-releases-page"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_screenshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_screenshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"label": "hyprland-releases-page"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_screenshot</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_screenshot.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"label": "hyprland-releases-page"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_fill_form</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"field_name": "search", "value": "ydotool compatibility"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_fill_form</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_fill_form.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"field_name": "search", "value": "ydotool compatibility"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_fill_form</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.browser_fill_form.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"field_name": "search", "value": "ydotool compatibility"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_submit</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/issues/new", "form_id": "issue-form"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_submit</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.browser_submit.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/issues/new", "form_id": "issue-form"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_submit</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.browser_submit.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://github.com/issues/new", "form_id": "issue-form"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_purchase</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://amazon.com", "item": "USB hub", "amount": "$29.99"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_purchase</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.browser_purchase.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://amazon.com", "item": "USB hub", "amount": "$29.99"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:29</span>
+              <span class="tool">browser_purchase</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.browser_purchase.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"url": "https://amazon.com", "item": "USB hub", "amount": "$29.99"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:29</span>
+              <span class="tool">sandbox_create</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "image": "ubuntu:22.04", "network": "none"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:29</span>
+              <span class="tool">sandbox_create</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.sandbox_create.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "image": "ubuntu:22.04", "network": "none"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_create</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.sandbox_create.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "image": "ubuntu:22.04", "network": "none"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_exec</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "command": "echo hello from sandbox"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_exec</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.sandbox_exec.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "command": "echo hello from sandbox"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event approval_required">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_exec</span>
+              <span class="disposition approval_required">[APPROVAL_REQUIRED]</span>
+              <span class="rule">tool_overrides.sandbox_exec.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox", "command": "echo hello from sandbox"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event ">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_destroy</span>
+              <span class="disposition ">[tool_request]</span>
+              <span class="rule"></span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_destroy</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.sandbox_destroy.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox"}
+              </div>
+              
+            </div>
+            
+
+            <div class="event allowed">
+              <span class="time">14:52:33</span>
+              <span class="tool">sandbox_destroy</span>
+              <span class="disposition allowed">[ALLOWED]</span>
+              <span class="rule">tool_overrides.sandbox_destroy.disposition</span>
+              <div style="color:#64748b;font-size:11px;margin-top:2px;">
+                args: {"sandbox_id": "test-sandbox"}
+              </div>
+              
+            </div>
+            
+</div>
+
+
+
+<div class="section">
+  <h2>📊 Raw Audit Data</h2>
+  <pre>[
+  {
+    "event_id": "75953003-b4af-4838-9ff5-c81b7689701d",
+    "timestamp": "2026-05-15T14:52:29.349523+00:00",
+    "event_type": "tool_request",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_search",
+    "tool_args": {
+      "query": "Hyprland v0.53 breaking changes"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "809346d9-e455-4041-bef8-bfa346ce54eb",
+    "timestamp": "2026-05-15T14:52:29.349612+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_search",
+    "tool_args": {
+      "query": "Hyprland v0.53 breaking changes"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.browser_search.disposition",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "e5faa6a3-6649-4954-9ed4-160f15d41550",
+    "timestamp": "2026-05-15T14:52:29.349851+00:00",
+    "event_type": "tool_executed",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_search",
+    "tool_args": {
+      "query": "Hyprland v0.53 breaking changes"
+    },
+    "disposition": "allowed",
+    "result": {
+      "success": true,
+      "output": "[Browser Room] Searched 'Hyprland v0.53 breaking changes' on google"
+    },
+    "policy_rule": "tool_overrides.browser_search.disposition",
+    "work_room": "browser",
+    "risk_level": "",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "12365836-7b1e-4de9-ac89-72ff222b7272",
+    "timestamp": "2026-05-15T14:52:29.349897+00:00",
+    "event_type": "tool_request",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_navigate",
+    "tool_args": {
+      "url": "https://github.com/hyprwm/Hyprland/releases"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "4112abc0-ed67-46ac-aced-5a5ce18a88f0",
+    "timestamp": "2026-05-15T14:52:29.349936+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_navigate",
+    "tool_args": {
+      "url": "https://github.com/hyprwm/Hyprland/releases"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.browser_navigate.disposition",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "58871910-f271-4530-a1d4-20b4c90ce31a",
+    "timestamp": "2026-05-15T14:52:29.349985+00:00",
+    "event_type": "tool_executed",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_navigate",
+    "tool_args": {
+      "url": "https://github.com/hyprwm/Hyprland/releases"
+    },
+    "disposition": "allowed",
+    "result": {
+      "success": true,
+      "output": "[Browser Room] Navigate to: https://github.com/hyprwm/Hyprland/releases"
+    },
+    "policy_rule": "tool_overrides.browser_navigate.disposition",
+    "work_room": "browser",
+    "risk_level": "",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "d25d87ac-65da-4e1f-983b-e4373c6cf048",
+    "timestamp": "2026-05-15T14:52:29.350021+00:00",
+    "event_type": "tool_request",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_read_page",
+    "tool_args": {
+      "url": "https://wiki.hyprland.org/Configuring/",
+      "extract": "text"
+    },
+    "disposition": "",
+    "result": null,
+    "policy_rule": "",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "35092233-3151-440d-98c2-fa38ea634b6d",
+    "timestamp": "2026-05-15T14:52:29.350054+00:00",
+    "event_type": "tool_allowed",
+    "task_id": "research-hyprland-compat",
+    "agent_id": "research-agent-01",
+    "agent_runtime": "hermes",
+    "tool_name": "browser_read_page",
+    "tool_args": {
+      "url": "https://wiki.hyprland.org/Configuring/",
+      "extract": "text"
+    },
+    "disposition": "allowed",
+    "result": null,
+    "policy_rule": "tool_overrides.browser_read_page.disposition",
+    "work_room": "browser",
+    "risk_level": "low",
+    "files_changed": [],
+    "metadata": {}
+  },
+  {
+    "event_id": "7453e904-2b4d-4bd2-af6b-22fecd25fd35",
+    "timestamp": "2026-05-15T14:52:29.350088+00:00",
+    "event_type": "tool_</pre>
+</div>
+
+<div class="footer">
+  🐌 SlimyOS Habitat — Proof Pack v0.1<br>
+  Generated 2026-05-15T14:52:33.348442+00:00
+</div>
+
+</body>
+</html>

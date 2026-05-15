@@ -1,0 +1,60 @@
+{
+  "version": "0.1",
+  "default_mode": "block",
+  "dangerous_actions": [
+    "restart_service", "install_package", "write_file",
+    "git_push", "send_email", "send_message",
+    "browser_submit", "browser_purchase"
+  ],
+  "blocked_actions": [
+    "raw_shell", "freeform_sudo", "delete_recursive",
+    "upload_secret", "change_firewall", "modify_policy",
+    "format_disk", "change_bootloader"
+  ],
+  "blocked_paths": [
+    "~/.ssh", "~/.gnupg", "~/.config/rclone",
+    "~/.aws", "~/.docker/config.json",
+    "~/.slimyos/secrets", "/etc/shadow", "/etc/sudoers",
+    "/boot", "/dev", "/proc", "/sys"
+  ],
+  "allowed_project_roots": [
+    "~/Projects"
+  ],
+  "require_snapshot_before": [
+    "install_package", "bulk_delete", "system_config_change"
+  ],
+  "require_approval": [
+    "restart_service", "git_push", "git_commit",
+    "send_email", "send_message", "browser_purchase",
+    "install_package", "write_file_outside_project"
+  ],
+  "budget": {
+    "max_tool_calls_per_task": 100,
+    "max_tool_calls_per_day": 1000,
+    "max_cost_usd_per_day": 10.0
+  },
+  "tool_overrides": {
+    "read_file": {
+      "disposition": "allow",
+      "max_calls_per_task": 200
+    },
+    "list_directory": {
+      "disposition": "allow",
+      "max_calls_per_task": 100
+    },
+    "run_tests": {
+      "disposition": "allow",
+      "max_calls_per_task": 20
+    },
+    "git_status": {
+      "disposition": "allow",
+      "max_calls_per_task": 50
+    },
+    "restart_service": {
+      "disposition": "approve",
+      "allowed_args": {
+        "service_name": ["slimy-bot-v2", "admin-api", "nuc-mailbox-ingest"]
+      }
+    }
+  }
+}

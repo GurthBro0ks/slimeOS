@@ -1,0 +1,16 @@
+{
+  "pack_id": "c375eaa7",
+  "task_id": "fix-hero-accent-line",
+  "task_description": "Fix hero accent line: #00ff00 \u2192 #06d6a0. Tests fail before, pass after. Diff captured. Phone-approved commit.",
+  "status": "success",
+  "created_at": "2026-05-15T14:52:29.286920+00:00",
+  "total_events": 47,
+  "total_allowed": 30,
+  "total_blocked": 0,
+  "total_approval": 2,
+  "files_changed": [
+    "/tmp/slimyos-demo-tyjo2852/slimy-dashboard/src/styles/hero.css",
+    "src/styles/hero.css"
+  ],
+  "duration_seconds": 0.1
+}

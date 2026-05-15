@@ -1,0 +1,14 @@
+{
+  "name": "sandbox_copy_out",
+  "version": "0.1.0",
+  "description": "Sandbox Room: sandbox copy out",
+  "risk_level": "medium",
+  "action_level": 5,
+  "work_room": "sandbox",
+  "requires_approval": false,
+  "sandbox_required": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

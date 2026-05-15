@@ -1,0 +1,13 @@
+diff --git a/src/styles/hero.css b/src/styles/hero.css
+index bd7e382..4c65aab 100644
+--- a/src/styles/hero.css
++++ b/src/styles/hero.css
+@@ -14,7 +14,7 @@
+ .hero .accent-line {
+   width: 120px;
+   height: 4px;
+-  background: #00ff00;  /* BUG: should be #06d6a0 */
++  background: #06d6a0;  /* FIXED: SlimyOS accent color */
+   margin: 16px auto;
+   border-radius: 2px;
+ }

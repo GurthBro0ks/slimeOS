@@ -1,0 +1,13 @@
+{
+  "pack_id": "3ddfecdb",
+  "task_id": "research-hyprland-compat",
+  "task_description": "Research Hyprland v0.53 compatibility. Browser search allowed, form submit gated, purchase denied.",
+  "status": "success",
+  "created_at": "2026-05-15T14:52:33.348442+00:00",
+  "total_events": 30,
+  "total_allowed": 14,
+  "total_blocked": 0,
+  "total_approval": 6,
+  "files_changed": [],
+  "duration_seconds": 4.0
+}

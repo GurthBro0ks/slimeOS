@@ -1,0 +1,14 @@
+{
+  "name": "sandbox_exec",
+  "version": "0.1.0",
+  "description": "Sandbox Room: sandbox exec",
+  "risk_level": "high",
+  "action_level": 5,
+  "work_room": "sandbox",
+  "requires_approval": true,
+  "sandbox_required": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "standard"
+}

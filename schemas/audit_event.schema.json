@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/audit_event.schema.json",
+  "title": "SlimyOS Audit Event",
+  "type": "object",
+  "required": ["event_id", "timestamp", "event_type", "agent_id", "tool_name"],
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "task_id": { "type": "string" },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "tool_request", "tool_allowed", "tool_blocked", "tool_approval_required",
+        "tool_executed", "tool_failed", "tool_result",
+        "approval_requested", "approval_granted", "approval_denied",
+        "snapshot_created", "rollback_triggered", "panic_stop",
+        "policy_loaded", "policy_violation",
+        "proof_pack_created", "failure_recorded"
+      ]
+    },
+    "agent_id": { "type": "string" },
+    "agent_runtime": { "type": "string", "description": "e.g., hermes, claude-code, codex, manual" },
+    "tool_name": { "type": "string" },
+    "tool_args": { "type": "object" },
+    "disposition": { "type": "string", "enum": ["allowed", "blocked", "approval_required", "sandbox", "snapshot_first"] },
+    "result": {
+      "type": "object",
+      "properties": {
+        "success": { "type": "boolean" },
+        "output": { "type": "string" },
+        "error": { "type": "string" },
+        "duration_ms": { "type": "number" }
+      }
+    },
+    "policy_rule": { "type": "string", "description": "Which policy rule triggered this disposition." },
+    "work_room": { "type": "string" },
+    "risk_level": { "type": "string" },
+    "files_changed": { "type": "array", "items": { "type": "string" } },
+    "metadata": { "type": "object" }
+  }
+}

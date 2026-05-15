@@ -1,0 +1,8 @@
+{
+    "custom/slimyos": {
+        "exec": "curl -s http://localhost:3002/api/state 2>/dev/null | python3 -c \"import sys,json;d=json.load(sys.stdin);s=d['stats'];print(f'🐌 {s[\\\"running\\\"]}R {s[\\\"pending_approvals\\\"]}A')\" 2>/dev/null || echo '🐌 off'",
+        "interval": 5,
+        "format": "{}",
+        "on-click": "xdg-open http://localhost:3002"
+    }
+}

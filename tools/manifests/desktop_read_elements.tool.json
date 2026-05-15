@@ -1,0 +1,13 @@
+{
+  "name": "desktop_read_elements",
+  "version": "0.1.0",
+  "description": "Desktop Room: desktop read elements",
+  "risk_level": "low",
+  "action_level": 6,
+  "work_room": "desktop",
+  "requires_approval": false,
+  "parameters": {
+    "type": "object"
+  },
+  "audit_level": "full"
+}

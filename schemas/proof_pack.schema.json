@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://slimyos.dev/schemas/proof_pack.schema.json",
+  "title": "SlimyOS Proof Pack",
+  "type": "object",
+  "required": ["pack_id", "task_id", "created_at", "status", "events"],
+  "properties": {
+    "pack_id": { "type": "string", "format": "uuid" },
+    "task_id": { "type": "string" },
+    "task_description": { "type": "string" },
+    "agent_id": { "type": "string" },
+    "agent_runtime": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["success", "failure", "partial", "blocked", "approval_pending"] },
+    "work_room": { "type": "string" },
+    "events": {
+      "type": "array",
+      "items": { "$ref": "audit_event.schema.json" }
+    },
+    "files_changed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "action": { "type": "string", "enum": ["created", "modified", "deleted"] },
+          "diff": { "type": "string" }
+        }
+      }
+    },
+    "screenshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "label": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "commands_executed": { "type": "array", "items": { "type": "string" } },
+    "approvals": {
+      "type": "array",
+      "items": { "$ref": "approval_request.schema.json" }
+    },
+    "policy_violations": { "type": "array", "items": { "type": "string" } },
+    "total_tool_calls": { "type": "integer" },
+    "total_blocked": { "type": "integer" },
+    "total_approved": { "type": "integer" },
+    "duration_seconds": { "type": "number" },
+    "summary": { "type": "string" }
+  }
+}
