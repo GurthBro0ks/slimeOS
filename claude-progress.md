@@ -108,3 +108,29 @@
 - All 9 verification checks passed.
 - mcpServers before: `google-drive, gmail`
 - mcpServers after: `google-drive, gmail, slimyos`
+
+## Session: Claude Desktop MCP Post-Install Verification
+
+- Added post-install verifier: `scripts/verify-claude-desktop-mcp.sh`.
+- Added helper module: `adapters/claude_desktop_verify.py`.
+- Added smoke test: `scripts/smoke-claude-desktop-mcp.sh`.
+- Added test coverage: `tests/test_claude_desktop_verify.py` (18 tests).
+- Verifier reads real Claude Desktop config, confirms SlimyOS entry exists, validates launcher path, runs live MCP checks (initialize, tools/list, safe call, blocked raw_shell, gated restart_service), checks broker health before/after, detects Claude Desktop process, generates redacted proof artifacts.
+- Redacts env values that look secret-like (keys, tokens, passwords).
+- Does not read or expose private Claude chat content.
+- Does not automate Claude Desktop GUI interaction.
+- Manual operator prompt generated: "Restart Claude Desktop, then ask it: Use the SlimyOS MCP tools to list the allowed repo directory and summarize the policy result."
+
+## Proof
+
+- Live verification proof directory: `/tmp/proof_slimyos_claude_desktop_live_20260515T170832Z`
+- Verification result: `PASS`
+- Config parses, existing servers preserved (google-drive, gmail), SlimyOS entry present.
+- Launcher path valid and executable.
+- MCP tool count: 43
+- Safe call: success
+- Blocked call disposition: blocked
+- Gated call disposition: blocked
+- Claude Desktop process: running
+- All 60 unit tests pass (including 18 new verify tests).
+- All smoke/verification scripts pass.

@@ -145,6 +145,12 @@ Show current config status (no mutation):
 ./scripts/slimyos-mcp-configure.sh --status
 ```
 
+Verify real Claude Desktop MCP install (read-only, no mutation):
+
+```bash
+./scripts/verify-claude-desktop-mcp.sh
+```
+
 Client preflight is non-privileged, read-only, and does not require secrets,
 provider login, or API keys. It validates that external clients can discover
 and call SlimyOS through the broker and that dangerous/raw-shell paths remain
@@ -207,6 +213,25 @@ MCP configure provides safe client config apply and rollback:
 Default mode is always dry-run. `--apply` requires explicit flag, creates a
 timestamped backup, and validates JSON after write. `--rollback` restores the
 latest backup. Unsupported/uncertain clients stay `MANUAL_REQUIRED`, not FAIL.
+
+After applying Claude Desktop config, verify the live install:
+
+```bash
+./scripts/verify-claude-desktop-mcp.sh
+```
+
+This verifies: config parses, existing servers preserved, SlimyOS entry present,
+launcher path valid, MCP initialize/tools-list/safe-call/blocked-call/gated-call
+all work, Tool Broker healthy, policy evidence intact. Read-only; no mutation.
+
+If Claude Desktop fails to load MCP after apply, rollback:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --rollback
+```
+
+Hermes auth is unrelated to Claude Desktop MCP bridge — the MCP server connects
+to Tool Broker directly over localhost.
 
 Portability note: some harnesses use `/home/slimy/*` paths, but many developer
 machines run as different users (for example, Mint user `mint`). Project

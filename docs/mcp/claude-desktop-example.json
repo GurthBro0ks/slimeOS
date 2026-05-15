@@ -29,3 +29,12 @@ To rollback to previous config:
 ```bash
 ./scripts/slimyos-mcp-configure.sh --rollback
 ```
+
+To verify the live install after apply:
+
+```bash
+./scripts/verify-claude-desktop-mcp.sh
+```
+
+After restarting Claude Desktop, ask it:
+"Use the SlimyOS MCP tools to list the allowed repo directory and summarize the policy result."

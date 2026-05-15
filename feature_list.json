@@ -61,6 +61,19 @@
         "status": "./scripts/slimyos-mcp-configure.sh --status",
         "real_apply_proof": "/tmp/proof_slimyos_real_claude_desktop_apply_20260515T165623Z"
       }
+    },
+    {
+      "id": "claude-desktop-mcp-post-install-verify",
+      "title": "Claude Desktop MCP post-install verification",
+      "status": "implemented",
+      "summary": "Post-install verifier that reads real Claude Desktop config, confirms SlimyOS entry, validates launcher, runs live MCP checks (initialize, tools/list, safe/blocked/gated calls), checks broker health, redacts secrets, and generates proof artifacts. Read-only, no mutation.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_claude_desktop_verify",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "smoke": "./scripts/smoke-claude-desktop-mcp.sh",
+        "verify": "./scripts/verify-claude-desktop-mcp.sh",
+        "live_proof": "/tmp/proof_slimyos_claude_desktop_live_20260515T170832Z"
+      }
     }
   ]
 }
