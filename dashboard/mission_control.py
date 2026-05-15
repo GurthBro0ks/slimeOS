@@ -1,74 +1,114 @@
-"""
-SlimyOS Mission Control — The Signature Dashboard
-
-A real HTTP server that shows:
-- System status (normal / panicked)
-- Active agents and their state
-- Running tasks with current tool
-- Pending approvals with approve/deny buttons
-- Live event stream
-- Proof pack links
-- PANIC STOP button
-- Stats overview
-
-Start: python3 dashboard/mission_control.py
-Open:  http://localhost:3002
-
-Designed for desktop and phone — responsive layout.
-Phone can approve/deny/panic from anywhere.
-"""
+"""SlimyOS Mission Control dashboard with live runtime truth checks."""
 
 import http.server
 import json
 import os
 import sys
-import urllib.parse
-from datetime import datetime, timezone
+from urllib import error as urlerror
+from urllib import request as urlrequest
 
-# Add project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-# Import hub (lazy — created on first access)
+from dashboard.runtime_status import RuntimeStatusCollector
+
+
+DEMO_MODE = os.environ.get("SLIMYOS_DEMO_MODE", "0") == "1"
+BROKER_URL = os.environ.get("SLIMYOS_TOOLD_URL", "http://localhost:3003").rstrip("/")
+SLIMYOS_HOME = os.environ.get("SLIMYOS_HOME", os.path.expanduser("~/.slimyos"))
+
+RUNTIME_COLLECTOR = RuntimeStatusCollector(
+    repo_path=PROJECT_ROOT,
+    slimyos_home=SLIMYOS_HOME,
+    broker_url=BROKER_URL,
+)
+
 _hub = None
+
 
 def get_hub():
     global _hub
     if _hub is None:
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
             "services.slimy_hub",
-            os.path.join(PROJECT_ROOT, "services", "slimy-hub", "__init__.py")
+            os.path.join(PROJECT_ROOT, "services", "slimy-hub", "__init__.py"),
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         _hub = mod.Hub()
-        # Seed demo data
         _seed_demo_data(_hub)
     return _hub
 
 
 def _seed_demo_data(hub):
-    """Pre-populate with realistic demo data."""
-    hub.register_agent("coding-agent-01", "claude-code")
-    hub.register_agent("research-agent-01", "hermes")
-    hub.register_agent("ops-agent-01", "codex")
-    
-    t1 = hub.create_task("fix-hero-accent", "Fix dashboard hero accent line #00ff00 → #06d6a0",
-                         "coding-agent-01", "claude-code", "code")
-    hub.complete_task("fix-hero-accent", "completed", "/proofs/fix-hero-accent/index.html")
-    
-    t2 = hub.create_task("research-hyprland", "Research Hyprland v0.53 breaking changes",
-                         "research-agent-01", "hermes", "research")
-    hub.update_task("research-hyprland", current_tool="browser_read_page", tool_calls=12)
-    
-    hub.request_approval("research-hyprland", "research-agent-01", "browser_submit",
-                         {"url": "https://github.com/issues/new", "form_id": "issue-form"},
-                         "Browser submit requires approval", "high")
-    
-    hub.request_approval("fix-nuc2-pm2", "ops-agent-01", "restart_service",
-                         {"service_name": "slimy-bot-v2"},
-                         "Service restart requires approval", "high")
+    hub.register_agent("demo-coding-agent", "claude-code")
+    hub.create_task(
+        "demo-task-1",
+        "Demo mode task - not live runtime data",
+        "demo-coding-agent",
+        "claude-code",
+        "code",
+    )
+
+
+def _http_get_json(url: str) -> dict:
+    with urlrequest.urlopen(url, timeout=2.0) as response:
+        return json.loads(response.read())
+
+
+def _http_post_json(url: str, payload: dict) -> dict:
+    data = json.dumps(payload).encode()
+    request = urlrequest.Request(
+        url,
+        data=data,
+        method="POST",
+        headers={"Content-Type": "application/json"},
+    )
+    with urlrequest.urlopen(request, timeout=2.0) as response:
+        return json.loads(response.read())
+
+
+def _live_state() -> dict:
+    runtime = RUNTIME_COLLECTOR.collect()
+    data = {
+        "panicked": runtime["panic"]["panicked"],
+        "tasks": [],
+        "agents": [],
+        "pending_approvals": [],
+        "recent_events": runtime["recent_events"],
+        "stats": {
+            "total_tasks": 0,
+            "running": 0,
+            "waiting_approval": 0,
+            "completed": 0,
+            "failed": 0,
+            "pending_approvals": runtime["approvals"]["pending_count"],
+            "total_agents": 0,
+        },
+        "runtime": runtime,
+        "demo_mode": DEMO_MODE,
+    }
+
+    if runtime["broker"].get("state"):
+        broker_state = runtime["broker"]["state"]
+        data.update({
+            "panicked": bool(broker_state.get("panicked", False)),
+            "tasks": broker_state.get("tasks", []),
+            "agents": broker_state.get("agents", []),
+            "pending_approvals": broker_state.get("pending_approvals", []),
+            "recent_events": broker_state.get("recent_events", []) or runtime["recent_events"],
+            "stats": broker_state.get("stats", data["stats"]),
+        })
+
+    if DEMO_MODE:
+        hub_state = get_hub().snapshot()
+        hub_state["runtime"] = runtime
+        hub_state["demo_mode"] = True
+        return hub_state
+
+    return data
 
 
 DASHBOARD_HTML = """<!DOCTYPE html>
@@ -99,6 +139,11 @@ body {
 .topbar h1 { font-size:16px; font-weight:800; color:#06d6a0; }
 .topbar .status { font-size:11px; color:#64748b; }
 
+.mode-badge {
+  margin-left: 8px; padding: 2px 8px; border-radius: 6px; font-size: 10px;
+  font-weight: 700; background: #f59e0b22; color:#f59e0b; border:1px solid #f59e0b66;
+}
+
 .panic-btn {
   background: #ef4444; color: white; border: 2px solid #dc2626;
   padding: 10px 24px; border-radius: 8px; font-weight: 800;
@@ -122,6 +167,24 @@ body {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto;
 }
+
+.runtime-grid {
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:8px; margin-top: 10px;
+}
+
+.runtime-item {
+  background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:8px;
+  font-size:11px;
+}
+
+.runtime-key { color:#94a3b8; font-size:10px; text-transform:uppercase; }
+.runtime-val { color:#e2e8f0; margin-top:3px; word-break:break-word; }
+
+.pill { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:700; }
+.pill-pass { background:#06d6a022; color:#06d6a0; border:1px solid #06d6a066; }
+.pill-warn { background:#f59e0b22; color:#f59e0b; border:1px solid #f59e0b66; }
+.pill-fail { background:#ef444422; color:#ef4444; border:1px solid #ef444466; }
 
 .card {
   background: #111827; border: 1px solid #1e293b; border-radius: 10px;
@@ -215,6 +278,18 @@ body {
 <div class="stats" id="stats"></div>
 
 <div class="grid">
+  <div class="card" style="grid-column: 1 / -1; border-color:#06d6a066">
+    <div class="card-header">
+      <h2>Runtime Status</h2>
+      <span class="count" id="runtime-host">-</span>
+    </div>
+    <div class="card-body">
+      <div id="runtime-overview"></div>
+      <div class="runtime-grid" id="runtime-grid"></div>
+      <div id="runtime-alerts" style="margin-top:10px"></div>
+    </div>
+  </div>
+
   <!-- Pending Approvals -->
   <div class="card" style="border-color:#f59e0b44">
     <div class="card-header">
@@ -265,6 +340,58 @@ const STATE_BADGE = {
   stopped: '<span class="badge badge-red">stopped</span>',
 };
 
+function pill(status) {
+  if (status === 'pass') return '<span class="pill pill-pass">PASS</span>';
+  if (status === 'warn') return '<span class="pill pill-warn">WARN</span>';
+  return '<span class="pill pill-fail">FAIL</span>';
+}
+
+function runtimeItem(key, value) {
+  return `<div class="runtime-item"><div class="runtime-key">${key}</div><div class="runtime-val">${value}</div></div>`;
+}
+
+function renderRuntime(runtime, demoMode) {
+  if (!runtime) return;
+  const svcToold = runtime.services?.['slimyos-toold'] || {};
+  const svcDash = runtime.services?.['slimyos-dashboard'] || {};
+  const broker = runtime.broker || {};
+  const hermes = runtime.hermes || {};
+  const audit = runtime.audit || {};
+  const proofs = runtime.proof_packs || {};
+
+  document.getElementById('runtime-host').textContent = runtime.hostname || '-';
+
+  const modeBadge = demoMode ? '<span class="mode-badge">DEMO MODE</span>' : '';
+  document.getElementById('runtime-overview').innerHTML =
+    `<div style="font-size:12px;color:#94a3b8">Repo: <span style="color:#e2e8f0">${runtime.repo_path || '-'}</span> ${modeBadge}</div>`;
+
+  document.getElementById('runtime-grid').innerHTML = [
+    runtimeItem('toold service', `${pill(svcToold.status)} ${svcToold.active || 'unknown'}`),
+    runtimeItem('dashboard service', `${pill(svcDash.status)} ${svcDash.active || 'unknown'}`),
+    runtimeItem('broker health', `${pill(broker.status)} tools=${broker.tool_count || 0}`),
+    runtimeItem('policy loaded', `${pill(broker.policy_loaded ? 'pass' : 'fail')} file=${broker.policy_file_exists ? 'yes' : 'no'}`),
+    runtimeItem('manifests loaded', `${pill(broker.manifest_loaded ? 'pass' : 'fail')}`),
+    runtimeItem('panic state', `${pill(runtime.panic?.panicked ? 'fail' : 'pass')} ${runtime.panic?.panicked ? 'PANICKED' : 'normal'}`),
+    runtimeItem('pending approvals', `${runtime.approvals?.pending_count || 0}`),
+    runtimeItem('audit path', `${pill(audit.status)} ${audit.path || '-'}`),
+    runtimeItem('audit recent events', `${audit.recent_event_count || 0}`),
+    runtimeItem('proof packs', `${pill(proofs.status)} latest=${proofs.latest || 'none'}`),
+    runtimeItem('Hermes installed', `${hermes.installed ? pill('pass') : pill('warn')} ${hermes.installed ? 'yes' : 'no'}`),
+    runtimeItem('Hermes proxy', `${hermes.proxy_reachable ? pill('pass') : pill('warn')} ${hermes.auth_state || 'auth_required_or_proxy_down'}`),
+  ].join('');
+
+  const warnings = runtime.warnings || [];
+  const errors = runtime.errors || [];
+  const warningHtml = warnings.length
+    ? `<div class="badge badge-yellow" style="margin-right:6px">WARN</div> ${warnings.join(' | ')}`
+    : '<span style="color:#64748b">No warnings</span>';
+  const errorHtml = errors.length
+    ? `<div class="badge badge-red" style="margin-right:6px">ERROR</div> ${errors.join(' | ')}`
+    : '<span style="color:#64748b">No runtime errors</span>';
+  document.getElementById('runtime-alerts').innerHTML =
+    `<div style="font-size:12px;margin-bottom:6px">${warningHtml}</div><div style="font-size:12px">${errorHtml}</div>`;
+}
+
 function render(data) {
   // Stats
   const s = data.stats;
@@ -274,6 +401,8 @@ function render(data) {
     stat(s.failed, 'Failed', '#ef4444'), stat(s.pending_approvals, 'Approvals', '#f59e0b'),
     stat(s.total_agents, 'Agents'),
   ].join('');
+
+  renderRuntime(data.runtime, data.demo_mode);
 
   // Status
   const statusEl = document.getElementById('status-text');
@@ -397,8 +526,11 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(DASHBOARD_HTML.encode())
         elif self.path == "/api/state":
-            hub = get_hub()
-            self.send_json(hub.snapshot())
+            self.send_json(_live_state())
+        elif self.path == "/api/runtime":
+            self.send_json(RUNTIME_COLLECTOR.collect())
+        elif self.path == "/health":
+            self.send_json({"status": "ok", "service": "slimyos-dashboard", "demo_mode": DEMO_MODE})
         elif self.path.startswith("/api/proofs"):
             self.send_json({"proofs": []})  # Future: list proof packs
         else:
@@ -407,26 +539,47 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/api/approve":
             body = self._read_body()
-            hub = get_hub()
-            req = hub.decide_approval(
-                body.get("request_id", ""),
-                body.get("approved", False),
-                "dashboard",
-            )
-            self.send_json({"ok": req is not None, "request": req.to_dict() if req else None})
+            if DEMO_MODE:
+                hub = get_hub()
+                req = hub.decide_approval(
+                    body.get("request_id", ""),
+                    body.get("approved", False),
+                    "dashboard",
+                )
+                self.send_json({"ok": req is not None, "request": req.to_dict() if req else None, "demo_mode": True})
+                return
+            try:
+                response = _http_post_json(
+                    f"{BROKER_URL}/approve",
+                    {
+                        "request_id": body.get("request_id", ""),
+                        "approved": body.get("approved", False),
+                        "decided_by": "dashboard",
+                    },
+                )
+                self.send_json(response)
+            except (urlerror.URLError, TimeoutError) as exc:
+                self.send_json({"ok": False, "error": str(exc)}, 502)
         elif self.path == "/api/panic":
-            hub = get_hub()
-            if hub.is_panicked:
-                hub.resume()
-                self.send_json({"ok": True, "action": "resumed"})
-            else:
-                hub.panic_stop("Dashboard panic button pressed")
-                self.send_json({"ok": True, "action": "panicked"})
+            if DEMO_MODE:
+                hub = get_hub()
+                if hub.is_panicked:
+                    hub.resume()
+                    self.send_json({"ok": True, "action": "resumed", "demo_mode": True})
+                else:
+                    hub.panic_stop("Dashboard panic button pressed")
+                    self.send_json({"ok": True, "action": "panicked", "demo_mode": True})
+                return
+            try:
+                response = _http_post_json(f"{BROKER_URL}/panic", {"reason": "Dashboard panic button pressed"})
+                self.send_json(response)
+            except (urlerror.URLError, TimeoutError) as exc:
+                self.send_json({"ok": False, "error": str(exc)}, 502)
         else:
             self.send_error(404)
     
-    def send_json(self, data):
-        self.send_response(200)
+    def send_json(self, data, status=200):
+        self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
@@ -453,6 +606,7 @@ def main():
 ═══════════════════════════════════════
   
   Dashboard ready. Open in your browser.
+  Live runtime mode: {"demo" if DEMO_MODE else "live"}
   Press Ctrl+C to stop.
 """)
     try:

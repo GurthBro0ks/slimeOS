@@ -1,0 +1,15 @@
+{
+  "features": [
+    {
+      "id": "mission-control-live-runtime-status",
+      "title": "Mission Control live runtime status layer",
+      "status": "implemented",
+      "summary": "Dashboard now reports real runtime state (services, broker health, policy/manifest load, audit/proof paths, panic, approvals, Hermes connectivity) with explicit PASS/WARN/FAIL badges.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_runtime_status",
+        "smoke": "./scripts/smoke-live-runtime.sh",
+        "proof_dir": "/tmp/proof_slimyos_live_runtime_20260515T153726Z"
+      }
+    }
+  ]
+}

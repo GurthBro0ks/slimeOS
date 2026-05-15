@@ -56,6 +56,41 @@ pip install -e .
 open examples/proof-pack/index.html
 ```
 
+## Mission Control (Live Runtime)
+
+Start the Tool Broker and Mission Control:
+
+```bash
+python3 serve.py
+python3 dashboard/mission_control.py
+```
+
+Open Mission Control at `http://localhost:3002`.
+The live runtime API is available at `http://localhost:3002/api/runtime`.
+
+Mission Control now prioritizes real machine state and reports:
+- `slimyos-toold` and `slimyos-dashboard` service status
+- Broker health and loaded tool count
+- Policy/manifest availability
+- Audit/proof-pack paths and recent events
+- Hermes installation and proxy connectivity
+
+If Hermes is installed but not authenticated or not running, status appears as
+`auth_required_or_proxy_down` (WARN). This does not fail core runtime health.
+
+Manual next step for Hermes (not automated by SlimyOS):
+
+```bash
+hermes login nous
+# or login to your preferred provider
+```
+
+Re-run live runtime smoke verification:
+
+```bash
+./scripts/smoke-live-runtime.sh
+```
+
 ## Project Structure
 
 ```
