@@ -16,3 +16,19 @@
 ## Notes
 
 - `/home/slimy/*` paths are not writable on this machine; updates were recorded in this repository instead.
+
+## Session: Client Adapter Preflight + Sync Proof
+
+- Synced runtime wiring commit `13dfe214affbd772d3b710a035af352c971af7a3` to `origin/main` and verified remote contains the commit.
+- Added client adapter preflight module and script:
+  - `adapters/client_preflight.py`
+  - `scripts/preflight-agent-clients.sh`
+- Preflight validates broker/dashboard reachability, health/tool count, safe tool call success, blocked raw shell, blocked restart_service(sshd), and gated git_commit behavior.
+- Hermes proxy/auth remains WARN-only (`auth_required_or_proxy_down`) and does not fail preflight.
+- Added unit tests for preflight behavior in `tests/test_client_preflight.py`.
+
+## Proof
+
+- Client preflight proof directory: `/tmp/proof_slimyos_client_preflight_20260515T154235Z`
+- Client preflight result: `PASS`
+- Live runtime smoke result during this checkpoint: `PASS`

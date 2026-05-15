@@ -10,6 +10,18 @@
         "smoke": "./scripts/smoke-live-runtime.sh",
         "proof_dir": "/tmp/proof_slimyos_live_runtime_20260515T153726Z"
       }
+    },
+    {
+      "id": "client-adapter-preflight",
+      "title": "Client adapter preflight for external agent runtimes",
+      "status": "implemented",
+      "summary": "Adds a non-privileged preflight proving client runtimes can reach and use the SlimyOS broker safely, while confirming dangerous/raw-shell paths remain blocked or gated.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_client_preflight",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "preflight": "./scripts/preflight-agent-clients.sh",
+        "proof_dir": "/tmp/proof_slimyos_client_preflight_20260515T154235Z"
+      }
     }
   ]
 }

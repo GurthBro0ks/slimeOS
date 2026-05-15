@@ -91,6 +91,33 @@ Re-run live runtime smoke verification:
 ./scripts/smoke-live-runtime.sh
 ```
 
+Run client adapter preflight:
+
+```bash
+./scripts/preflight-agent-clients.sh
+```
+
+Client preflight is non-privileged, read-only, and does not require secrets,
+provider login, or API keys. It validates that external clients can discover
+and call SlimyOS through the broker and that dangerous/raw-shell paths remain
+blocked or approval-gated.
+
+`WARN` indicates optional dependencies are not fully connected. Example:
+Hermes `auth_required_or_proxy_down` means Hermes is installed but local proxy
+auth/connectivity is not ready yet. Core SlimyOS control plane can still pass.
+
+Manual operator step when needed:
+
+```bash
+hermes login nous
+# or your preferred provider login
+```
+
+Portability note: some harnesses use `/home/slimy/*` paths, but many developer
+machines run as different users (for example, Mint user `mint`). Project
+scripts are written to stay portable and should prefer repository-local
+artifacts when `/home/slimy` paths are unavailable or unwritable.
+
 ## Project Structure
 
 ```
