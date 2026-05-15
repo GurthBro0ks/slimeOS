@@ -103,6 +103,18 @@ Run MCP bridge smoke verification:
 ./scripts/smoke-mcp-bridge.sh
 ```
 
+Run MCP doctor (dry-run by default):
+
+```bash
+./scripts/slimyos-mcp-doctor.sh
+```
+
+Run MCP healthline (compact operator status):
+
+```bash
+./scripts/slimyos-mcp-healthline.sh
+```
+
 Client preflight is non-privileged, read-only, and does not require secrets,
 provider login, or API keys. It validates that external clients can discover
 and call SlimyOS through the broker and that dangerous/raw-shell paths remain
@@ -138,6 +150,10 @@ What is intentionally not automated yet:
 - Secret management and API key injection
 - Privileged host changes
 - Browser account login automation
+
+MCP doctor and healthline do not require secrets or provider login. They only
+validate local broker-backed MCP wiring and preserve policy enforcement through
+Tool Broker.
 
 Portability note: some harnesses use `/home/slimy/*` paths, but many developer
 machines run as different users (for example, Mint user `mint`). Project

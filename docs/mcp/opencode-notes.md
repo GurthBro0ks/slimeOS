@@ -21,3 +21,10 @@ Security behavior:
 
 Hermes note:
 - Hermes login/proxy auth is optional and not required for MCP bridging.
+
+Recommended dry-run validation:
+
+```bash
+./scripts/slimyos-mcp-doctor.sh
+./scripts/slimyos-mcp-healthline.sh
+```

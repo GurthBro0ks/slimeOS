@@ -34,6 +34,19 @@
         "smoke": "./scripts/smoke-mcp-bridge.sh",
         "proof_dir": "/tmp/proof_slimyos_mcp_bridge_20260515T155114Z"
       }
+    },
+    {
+      "id": "mcp-doctor-healthline",
+      "title": "MCP doctor dry-run and healthline",
+      "status": "implemented",
+      "summary": "Adds operator-facing MCP doctor and one-line healthline checks that produce proof artifacts, detect client wiring readiness, and validate blocked/gated policy evidence without mutating user config by default.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_mcp_doctor",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "doctor": "./scripts/slimyos-mcp-doctor.sh",
+        "healthline": "./scripts/slimyos-mcp-healthline.sh",
+        "proof_dir": "/tmp/proof_slimyos_mcp_doctor_20260515T161044Z"
+      }
     }
   ]
 }

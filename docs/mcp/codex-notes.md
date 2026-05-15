@@ -22,3 +22,10 @@ Not automated:
 - No provider login flows.
 - No Hermes auth automation.
 - No privileged host changes.
+
+Use the doctor workflow before wiring production configs:
+
+```bash
+./scripts/slimyos-mcp-doctor.sh
+./scripts/slimyos-mcp-healthline.sh
+```

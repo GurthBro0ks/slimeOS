@@ -48,3 +48,17 @@
 - MCP bridge proof directory: `/tmp/proof_slimyos_mcp_bridge_20260515T155114Z`
 - MCP bridge smoke result: `PASS`
 - MCP tool count observed: `43`
+
+## Session: MCP Doctor + Healthline
+
+- Added operator-facing dry-run doctor script: `scripts/slimyos-mcp-doctor.sh`.
+- Added reusable helper module: `adapters/mcp_doctor.py`.
+- Added compact status command: `scripts/slimyos-mcp-healthline.sh`.
+- Added test coverage for doctor logic: `tests/test_mcp_doctor.py`.
+- Doctor now generates proof artifacts and client config snippets without mutating live configs by default.
+
+## Proof
+
+- MCP doctor proof directory: `/tmp/proof_slimyos_mcp_doctor_20260515T161044Z`
+- MCP doctor result: `PASS`
+- MCP healthline output: `SlimyOS MCP: PASS | broker=ok tools=43 dashboard=ok claude=found codex=found opencode=found hermes=warn/auth_required_or_proxy_down policy=blocked_raw_shell`

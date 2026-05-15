@@ -25,3 +25,12 @@ Notes:
 - Blocked tools remain blocked.
 - Approval-gated tools remain approval-gated.
 - Hermes auth/proxy state is unrelated to MCP bridge startup.
+
+Operator sanity checks:
+
+```bash
+./scripts/slimyos-mcp-doctor.sh
+./scripts/slimyos-mcp-healthline.sh
+```
+
+Both commands are dry-run checks and do not overwrite client configs by default.
