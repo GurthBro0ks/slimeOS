@@ -9,9 +9,11 @@ Starts the tool broker as an HTTP API that any agent runtime can call.
   GET  /tools/<name>     → get single tool manifest
   POST /tools/<name>     → call a tool (policy-checked, audited)
   GET  /audit/recent     → recent audit events
-  GET  /state            → hub state (tasks, agents, approvals)
+  GET  /state            → broker+hub state (tasks, agents, approvals)
+  GET  /approvals        → list approval requests
   POST /panic            → panic stop
-  POST /approve          → approve/deny a pending request
+  POST /approve          → approve a pending request
+  POST /deny             → deny a pending request
 
 Start: python3 serve.py
 Default: http://0.0.0.0:3003
@@ -22,6 +24,7 @@ import json
 import os
 import sys
 import importlib.util
+from urllib.parse import parse_qs, urlparse
 
 SLIMYOS_HOME = os.environ.get("SLIMYOS_HOME", os.path.expanduser("~/.slimyos"))
 # If running from repo, use repo root; if installed, use SLIMYOS_HOME
@@ -88,12 +91,30 @@ for name, handler in ALL_TOOLS.items():
 
 class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
 
+    @staticmethod
+    def _state_payload() -> dict:
+        state = hub.snapshot()
+        state["memory"] = memory.get_failure_summary()
+
+        approval_state = broker.approvals_state()
+        state["pending_approvals"] = approval_state["pending_approvals"]
+        state["approvals_recent"] = approval_state["approvals_recent"]
+        state["approvals"] = approval_state["approvals"]
+
+        stats = state.get("stats", {})
+        stats["pending_approvals"] = approval_state["approvals"]["pending_count"]
+        stats["waiting_approval"] = approval_state["approvals"]["pending_count"]
+        state["stats"] = stats
+        return state
+
     def do_GET(self):
-        if self.path == "/health":
+        parsed = urlparse(self.path)
+
+        if parsed.path == "/health":
             self._json({"status": "ok", "service": "slimy-toold", "tools": len(broker.list_tools()),
                          "panicked": hub.is_panicked})
 
-        elif self.path == "/tools":
+        elif parsed.path == "/tools":
             tools = []
             for name in broker.list_tools():
                 m = broker.get_manifest(name)
@@ -107,27 +128,36 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
                 })
             self._json({"tools": tools, "count": len(tools)})
 
-        elif self.path.startswith("/tools/"):
-            name = self.path.split("/tools/")[1].split("?")[0]
+        elif parsed.path.startswith("/tools/"):
+            name = parsed.path.split("/tools/")[1].split("?")[0]
             m = broker.get_manifest(name)
             if m:
                 self._json(m)
             else:
                 self._json({"error": f"Tool not found: {name}"}, 404)
 
-        elif self.path == "/audit/recent":
+        elif parsed.path == "/audit/recent":
             events = audit.get_events()[-50:]
             self._json({"events": events, "count": len(events)})
 
-        elif self.path == "/state":
-            state = hub.snapshot()
-            state["memory"] = memory.get_failure_summary()
-            self._json(state)
+        elif parsed.path == "/state":
+            self._json(self._state_payload())
 
-        elif self.path == "/failures":
+        elif parsed.path == "/approvals":
+            query = parse_qs(parsed.query)
+            status = query.get("status", [None])[0]
+            limit_param = query.get("limit", ["100"])[0]
+            try:
+                limit = max(1, min(int(limit_param), 500))
+            except ValueError:
+                limit = 100
+            approvals = broker.get_approvals(status=status, limit=limit)
+            self._json({"approvals": approvals, "count": len(approvals), "status_filter": status or "all"})
+
+        elif parsed.path == "/failures":
             self._json({"failures": memory.get_all_failures(), "rules": memory.get_learned_rules()})
 
-        elif self.path == "/mcp/tools":
+        elif parsed.path == "/mcp/tools":
             # MCP-compatible tool list for Claude Code / Cursor
             tools = []
             for name in broker.list_tools():
@@ -149,7 +179,8 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
             self._json({"error": "Not found", "endpoints": [
                 "GET /health", "GET /tools", "GET /tools/<name>",
                 "POST /tools/<name>", "GET /audit/recent", "GET /state",
-                "GET /failures", "GET /mcp/tools", "POST /panic", "POST /approve",
+                "GET /approvals", "GET /failures", "GET /mcp/tools",
+                "POST /panic", "POST /approve", "POST /deny",
             ]}, 404)
 
     def do_POST(self):
@@ -194,11 +225,23 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
                 self._json({"ok": True, "action": "panicked"})
 
         elif self.path == "/approve":
-            req_id = body.get("request_id", "")
-            approved = body.get("approved", False)
+            approval_id = body.get("approval_id", body.get("request_id", ""))
+            approved = body.get("approved", True)
             decided_by = body.get("decided_by", "api")
-            req = hub.decide_approval(req_id, approved, decided_by)
-            self._json({"ok": req is not None, "request": req.to_dict() if req else None})
+            req = broker.decide_approval(approval_id, bool(approved), decided_by)
+            if req is None:
+                self._json({"ok": False, "error": "unknown_approval_id", "approval_id": approval_id}, 404)
+            else:
+                self._json({"ok": True, "approval": req})
+
+        elif self.path == "/deny":
+            approval_id = body.get("approval_id", body.get("request_id", ""))
+            decided_by = body.get("decided_by", "api")
+            req = broker.decide_approval(approval_id, False, decided_by)
+            if req is None:
+                self._json({"ok": False, "error": "unknown_approval_id", "approval_id": approval_id}, 404)
+            else:
+                self._json({"ok": True, "approval": req})
 
         elif self.path == "/tasks":
             task = hub.create_task(
@@ -268,8 +311,11 @@ def main():
     GET  /health          — status check
     GET  /tools           — list all tools
     POST /tools/<name>    — call a tool
-    GET  /state           — hub state
+    GET  /state           — broker + hub state
+    GET  /approvals       — approval queue
     POST /panic           — emergency stop
+    POST /approve         — approve request
+    POST /deny            — deny request
     GET  /mcp/tools       — MCP-compatible tool list
 
   Press Ctrl+C to stop.

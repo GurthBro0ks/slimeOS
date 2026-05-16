@@ -74,6 +74,23 @@ Mission Control now prioritizes real machine state and reports:
 - Policy/manifest availability
 - Audit/proof-pack paths and recent events
 - Hermes installation and proxy connectivity
+- Pending approvals with client identity, policy rule, risk, and redacted arg summary
+
+Approval visibility is now first-class:
+- Gated tools (for example `git_commit`) return `approval_required` with `approval_id`
+- Tool Broker records a pending approval request (no tool execution yet)
+- Mission Control shows a Pending Approvals card with approve/deny controls
+- API endpoints:
+  - `GET /state` (includes `pending_approvals`, `approvals_recent`)
+  - `GET /approvals`
+  - `POST /approve` with `approval_id`
+  - `POST /deny` with `approval_id`
+
+Current checkpoint behavior is intentionally conservative:
+- Approval decisions are recorded as `denied` or `approved_pending_manual_execution`
+- No automatic post-approval execution is performed yet for `git_commit`
+- Privacy rule remains enforced: no private chat text stored in approval/audit payloads
+- Secret-like args are redacted before audit storage
 
 If Hermes is installed but not authenticated or not running, status appears as
 `auth_required_or_proxy_down` (WARN). This does not fail core runtime health.
@@ -96,6 +113,16 @@ Run client adapter preflight:
 ```bash
 ./scripts/preflight-agent-clients.sh
 ```
+
+Run approval-flow smoke proof:
+
+```bash
+./scripts/smoke-approval-flow.sh
+```
+
+This validates end-to-end approval visibility (gated MCP call, pending approval state,
+deny/approve recording, raw-shell block evidence, privacy redaction) without executing
+destructive host actions.
 
 Run MCP bridge smoke verification:
 

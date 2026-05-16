@@ -77,6 +77,7 @@ def _live_state() -> dict:
         "tasks": [],
         "agents": [],
         "pending_approvals": [],
+        "approvals_recent": [],
         "recent_events": runtime["recent_events"],
         "stats": {
             "total_tasks": 0,
@@ -98,6 +99,7 @@ def _live_state() -> dict:
             "tasks": broker_state.get("tasks", []),
             "agents": broker_state.get("agents", []),
             "pending_approvals": broker_state.get("pending_approvals", []),
+            "approvals_recent": broker_state.get("approvals_recent", []),
             "recent_events": broker_state.get("recent_events", []) or runtime["recent_events"],
             "stats": broker_state.get("stats", data["stats"]),
         })
@@ -234,6 +236,12 @@ body {
 }
 .approval-card .tool { color: #f59e0b; font-weight: 700; }
 .approval-card .reason { color: #94a3b8; font-size: 11px; margin: 6px 0; }
+.approval-meta { font-size: 10px; color:#64748b; margin-top: 4px; }
+.approval-args {
+  margin-top: 6px; font-size: 11px; color:#cbd5e1;
+  background:#0f172a; border:1px solid #1e293b; border-radius:6px; padding:6px;
+  word-break:break-word;
+}
 .approval-btns { display: flex; gap: 8px; margin-top: 8px; }
 .btn-approve {
   background: #06d6a0; color: #0a0e1a; border: none; padding: 8px 20px;
@@ -247,6 +255,11 @@ body {
 }
 .btn-approve:hover { background: #05c090; }
 .btn-deny:hover { background: #ef444455; }
+
+.decision-note {
+  margin-top: 8px; font-size: 11px; color: #94a3b8;
+  border-top: 1px solid #1e293b; padding-top: 8px;
+}
 
 .event-row .time { color: #64748b; }
 .event-row .type { color: #7c3aed; font-weight: 600; }
@@ -432,19 +445,30 @@ function render(data) {
   // Approvals
   const approvalsEl = document.getElementById('approvals');
   const pendingApprovals = data.pending_approvals || [];
+  const recentApprovals = (data.approvals_recent || []).filter(a => a.status !== 'pending').slice(-5).reverse();
   document.getElementById('approval-count').textContent = pendingApprovals.length;
   if (pendingApprovals.length === 0) {
-    approvalsEl.innerHTML = '<div style="color:#64748b;font-size:12px;padding:8px">No pending approvals</div>';
+    const recentHtml = recentApprovals.length
+      ? `<div class="decision-note"><strong style="color:#e2e8f0">Recent decisions</strong><div style="margin-top:6px">${recentApprovals.map(a => {
+          const who = a.decided_by || 'unknown';
+          const when = (a.decision_at || a.decided_at || '').substring(11,19) || '--:--:--';
+          const badge = a.status.includes('approved') ? '<span class="badge badge-green">approved</span>' : '<span class="badge badge-red">denied</span>';
+          return `<div style="margin-bottom:4px">${badge} <span style="color:#e2e8f0">${a.tool_name}</span> <span style="color:#64748b">by ${who} at ${when}</span></div>`;
+        }).join('')}</div></div>`
+      : '';
+    approvalsEl.innerHTML = '<div style="color:#64748b;font-size:12px;padding:8px">No pending approvals</div>' + recentHtml;
   } else {
     approvalsEl.innerHTML = pendingApprovals.map(a => `
       <div class="approval-card">
-        <div><span class="tool">${a.tool_name}</span> <span class="badge badge-yellow">${a.risk_level}</span></div>
-        <div class="reason">${a.reason}</div>
-        <div style="font-size:10px;color:#64748b">Agent: ${a.agent_id} · Task: ${a.task_id}</div>
-        <div style="font-size:10px;color:#64748b;margin-top:4px">Args: ${JSON.stringify(a.tool_args).substring(0,80)}</div>
+        <div><span class="tool">${a.tool_name || 'unknown_tool'}</span> <span class="badge badge-yellow">${a.risk_level || 'unknown'}</span></div>
+        <div class="approval-meta">Client: ${(a.client_identity || {}).client_name || 'Unknown Client'} · ${(a.client_identity || {}).transport || 'unknown'}</div>
+        <div class="approval-meta">Rule: ${a.policy_rule || '-'} · Disposition: ${a.disposition || 'approval_required'}</div>
+        <div class="approval-meta">Created: ${(a.created_at || '').substring(11,19) || '--:--:--'} · ID: ${(a.approval_id || '').substring(0,8)}</div>
+        <div class="approval-args">${a.requested_args_summary || JSON.stringify(a.requested_args_redacted || {}).substring(0,120)}</div>
+        <div class="approval-meta">Audit: ${a.audit_event_id || '-'} ${a.proof_ref ? '· Proof: ' + a.proof_ref : ''}</div>
         <div class="approval-btns">
-          <button class="btn-approve" onclick="decide('${a.request_id}',true)">✓ Approve</button>
-          <button class="btn-deny" onclick="decide('${a.request_id}',false)">✕ Deny</button>
+          <button class="btn-approve" onclick="approve('${a.approval_id}')">✓ Approve</button>
+          <button class="btn-deny" onclick="deny('${a.approval_id}')">✕ Deny</button>
         </div>
       </div>
     `).join('');
@@ -529,12 +553,29 @@ async function fetchState() {
   } catch(e) { console.error(e); }
 }
 
-async function decide(requestId, approved) {
-  await fetch('/api/approve', {
+async function approve(approvalId) {
+  const response = await fetch('/api/approve', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({request_id: requestId, approved: approved}),
+    body: JSON.stringify({approval_id: approvalId}),
   });
+  const result = await response.json();
+  if (!result.ok) {
+    console.error('approve_failed', result);
+  }
+  fetchState();
+}
+
+async function deny(approvalId) {
+  const response = await fetch('/api/deny', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({approval_id: approvalId}),
+  });
+  const result = await response.json();
+  if (!result.ok) {
+    console.error('deny_failed', result);
+  }
   fetchState();
 }
 
@@ -562,6 +603,15 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(DASHBOARD_HTML.encode())
         elif self.path == "/api/state":
             self.send_json(_live_state())
+        elif self.path == "/api/approvals":
+            if DEMO_MODE:
+                state = get_hub().snapshot()
+                self.send_json({"approvals": state.get("pending_approvals", []), "count": len(state.get("pending_approvals", [])), "demo_mode": True})
+                return
+            try:
+                self.send_json(_http_get_json(f"{BROKER_URL}/approvals"))
+            except (urlerror.URLError, TimeoutError) as exc:
+                self.send_json({"ok": False, "error": str(exc)}, 502)
         elif self.path == "/api/runtime":
             self.send_json(RUNTIME_COLLECTOR.collect())
         elif self.path == "/health":
@@ -577,8 +627,8 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
             if DEMO_MODE:
                 hub = get_hub()
                 req = hub.decide_approval(
-                    body.get("request_id", ""),
-                    body.get("approved", False),
+                    body.get("approval_id", body.get("request_id", "")),
+                    True,
                     "dashboard",
                 )
                 self.send_json({"ok": req is not None, "request": req.to_dict() if req else None, "demo_mode": True})
@@ -587,8 +637,29 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
                 response = _http_post_json(
                     f"{BROKER_URL}/approve",
                     {
-                        "request_id": body.get("request_id", ""),
-                        "approved": body.get("approved", False),
+                        "approval_id": body.get("approval_id", body.get("request_id", "")),
+                        "decided_by": "dashboard",
+                    },
+                )
+                self.send_json(response)
+            except (urlerror.URLError, TimeoutError) as exc:
+                self.send_json({"ok": False, "error": str(exc)}, 502)
+        elif self.path == "/api/deny":
+            body = self._read_body()
+            if DEMO_MODE:
+                hub = get_hub()
+                req = hub.decide_approval(
+                    body.get("approval_id", body.get("request_id", "")),
+                    False,
+                    "dashboard",
+                )
+                self.send_json({"ok": req is not None, "request": req.to_dict() if req else None, "demo_mode": True})
+                return
+            try:
+                response = _http_post_json(
+                    f"{BROKER_URL}/deny",
+                    {
+                        "approval_id": body.get("approval_id", body.get("request_id", "")),
                         "decided_by": "dashboard",
                     },
                 )

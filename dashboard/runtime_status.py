@@ -115,7 +115,14 @@ class RuntimeStatusCollector:
     def _extract_client_activity(self, events: list[dict]) -> list[dict]:
         activity = []
         for event in events:
-            if event.get("event_type") not in {"tool_executed", "tool_allowed", "tool_blocked"}:
+            if event.get("event_type") not in {
+                "tool_executed",
+                "tool_allowed",
+                "tool_blocked",
+                "tool_approval_required",
+                "approval_requested",
+                "approval_decided",
+            }:
                 continue
             ci = event.get("client_identity", {}) or {}
             activity.append({

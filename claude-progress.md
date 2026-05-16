@@ -252,3 +252,47 @@
 - Runtime API includes clients_seen: yes
 - raw_shell blocked: yes
 - Privacy clean: yes (no chat text, no secrets)
+
+## Session: Mission Control Approval Request Visibility
+
+- Added approval request model and in-memory approval queue in `services/slimy-toold/broker.py`.
+  - Fields now include: `approval_id`, `request_id`, `client_identity`, `tool_name`, `requested_args_summary`, `requested_args_redacted`, `disposition`, `policy_rule`, `risk_level`, timestamps, decision metadata, `audit_event_id`, `proof_ref`.
+  - Secret-like values are redacted before audit storage.
+  - Private chat-like fields are omitted from stored args (`private_fields_omitted` count recorded).
+- Integrated Tool Broker approval flow:
+  - On `approval_required`, broker now creates a pending approval request, audits it, returns `approval_id` to caller, and does not execute the gated tool.
+  - Approval decision recording added: `approved_pending_manual_execution` or `denied`.
+- Updated API server (`serve.py`):
+  - `GET /state` now includes `pending_approvals`, `approvals_recent`, and approval counts.
+  - Added `GET /approvals`.
+  - Added `POST /deny` and updated `POST /approve` to use `approval_id`.
+  - Unknown `approval_id` returns safe error (`unknown_approval_id`).
+- Updated Mission Control UI (`dashboard/mission_control.py`):
+  - Pending Approvals panel now shows client identity, transport, tool, policy rule, risk badge, args summary, created timestamp, and audit reference.
+  - Added approve/deny controls wired to `/api/approve` and `/api/deny`.
+  - Added recent approval decision note area.
+- Updated runtime status collector (`dashboard/runtime_status.py`) to include approval events in recent client activity extraction.
+- Added proof script `scripts/smoke-approval-flow.sh`:
+  - Runs isolated local broker/dashboard on ports `3303/3302` by default.
+  - Verifies gated MCP call returns `approval_required` + `approval_id`.
+  - Verifies pending approval appears in Mission Control state.
+  - Verifies deny and approve decisions update status safely.
+  - Verifies no `git_commit` execution occurs and git HEAD does not change.
+  - Verifies audit includes client identity + policy rule and keeps chat text/secrets out.
+  - Verifies `raw_shell` remains blocked.
+- Added tests `tests/test_approval_flow.py` (8 tests):
+  - approval creation on policy gate
+  - approval id returned
+  - pending approval appears in state
+  - deny never executes tool
+  - approve records decision
+  - unknown approval id safe failure
+  - client identity preserved + secret redaction
+  - no chat text/secret leakage + raw_shell blocked
+
+## Proof
+
+- Approval flow smoke proof directory: `/tmp/proof_slimyos_approval_flow_20260516T161153Z`
+- Result: PASS
+- Full unit suite: `python3 -m unittest discover -s tests` -> `110 tests PASS`
+- Full verification/smoke suite rerun PASS (Hermes remains WARN `auth_required_or_proxy_down`)

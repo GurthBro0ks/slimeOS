@@ -100,6 +100,18 @@
         "smoke": "./scripts/smoke-client-identity.sh",
         "client_identity_proof": "/tmp/proof_slimyos_client_identity_20260516T153438Z"
       }
+    },
+    {
+      "id": "approval-request-visibility",
+      "title": "Approval request visibility and decision recording in Mission Control",
+      "status": "implemented",
+      "summary": "Adds first-class approval request tracking in Tool Broker and Mission Control. Gated tool calls now return approval_id, create audited pending approvals with redacted args and client identity, and expose approval state via API/UI. Approve/deny decisions are recorded safely without executing destructive actions yet.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_approval_flow",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "smoke": "./scripts/smoke-approval-flow.sh",
+        "approval_flow_proof": "/tmp/proof_slimyos_approval_flow_20260516T161153Z"
+      }
     }
   ]
 }

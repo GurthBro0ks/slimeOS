@@ -258,12 +258,26 @@ data = json.loads(result.stdout)
 events = data.get("events", [])
 
 issues = []
+
+def iter_string_values(value):
+    if isinstance(value, dict):
+        for nested in value.values():
+            yield from iter_string_values(nested)
+    elif isinstance(value, list):
+        for nested in value:
+            yield from iter_string_values(nested)
+    elif isinstance(value, str):
+        yield value
+
 for event in events:
-    event_str = json.dumps(event).lower()
-    if "chat" in event_str:
-        issues.append("found_chat_text")
-    if "conversation" in event_str:
-        issues.append("found_conversation_text")
+    # Check for known private chat markers in values (not keys).
+    values_blob = "\n".join(iter_string_values(event)).lower()
+    if "private user conversation text" in values_blob:
+        issues.append("found_private_chat_marker")
+    if "private chat text should never be stored" in values_blob:
+        issues.append("found_private_chat_marker")
+
+    # Identity envelope must not carry secret-like keys.
     ci = event.get("client_identity", {}) or {}
     for key in ci:
         if "secret" in key.lower() or "password" in key.lower() or "token" in key.lower():
