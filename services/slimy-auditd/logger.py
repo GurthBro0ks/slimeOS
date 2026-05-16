@@ -42,6 +42,7 @@ class AuditLogger:
         risk_level: str = "",
         files_changed: Optional[list] = None,
         metadata: Optional[dict] = None,
+        client_identity: Optional[dict] = None,
     ) -> dict:
         """Log an audit event. Returns the event dict."""
         event = {
@@ -60,6 +61,7 @@ class AuditLogger:
             "risk_level": risk_level,
             "files_changed": files_changed or [],
             "metadata": metadata or {},
+            "client_identity": client_identity or {},
         }
 
         # Append to file (append-only, never overwrite)

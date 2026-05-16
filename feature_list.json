@@ -88,6 +88,18 @@
         "prove_watch": "./scripts/prove-claude-desktop-client.sh --watch 180",
         "real_client_proof": "/tmp/proof_slimyos_claude_desktop_real_client_20260516T145939Z"
       }
+    },
+    {
+      "id": "client-identity-session-visibility",
+      "title": "First-class client identity and session visibility in SlimyOS",
+      "status": "implemented",
+      "summary": "Adds client identity envelope (client_id, client_name, client_kind, transport) to all tool calls. MCP bridge tags calls with identity metadata. Audit logger enriches events with client identity. Dashboard shows Recent Client Activity panel with disposition badges, policy rules, and safety flags. Runtime API exposes recent_client_activity, clients_seen, and last_claude_desktop_event. Privacy rule: no chat text stored.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_client_identity",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "smoke": "./scripts/smoke-client-identity.sh",
+        "client_identity_proof": "/tmp/proof_slimyos_client_identity_20260516T153438Z"
+      }
     }
   ]
 }

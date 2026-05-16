@@ -88,6 +88,10 @@ class RuntimeStatusCollector:
         if audit_recent:
             recent_events = audit_recent.get("events", [])[-15:]
 
+        recent_client_activity = self._extract_client_activity(recent_events)
+        clients_seen = self._extract_clients_seen(recent_events)
+        last_claude_desktop_event = self._find_last_claude_desktop_event(recent_events)
+
         runtime = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "hostname": platform.node(),
@@ -100,10 +104,63 @@ class RuntimeStatusCollector:
             "approvals": approvals,
             "panic": panic,
             "recent_events": recent_events,
+            "recent_client_activity": recent_client_activity,
+            "clients_seen": clients_seen,
+            "last_claude_desktop_event": last_claude_desktop_event,
             "warnings": warnings,
             "errors": errors,
         }
         return runtime
+
+    def _extract_client_activity(self, events: list[dict]) -> list[dict]:
+        activity = []
+        for event in events:
+            if event.get("event_type") not in {"tool_executed", "tool_allowed", "tool_blocked"}:
+                continue
+            ci = event.get("client_identity", {}) or {}
+            activity.append({
+                "timestamp": event.get("timestamp", ""),
+                "client_name": ci.get("client_name", event.get("agent_id", "unknown")),
+                "client_id": ci.get("client_id", event.get("agent_id", "unknown")),
+                "transport": ci.get("transport", event.get("agent_runtime", "unknown")),
+                "tool_name": event.get("tool_name", ""),
+                "disposition": event.get("disposition", ""),
+                "policy_rule": event.get("policy_rule", ""),
+                "files_modified": bool(event.get("files_changed", [])),
+                "unsafe_action": event.get("tool_name") == "raw_shell" and event.get("disposition") == "allowed",
+                "result_summary": (event.get("result", {}) or {}).get("output", "")[:80],
+            })
+        return activity[-10:]
+
+    def _extract_clients_seen(self, events: list[dict]) -> list[dict]:
+        seen: dict[str, dict] = {}
+        for event in events:
+            ci = event.get("client_identity", {}) or {}
+            cid = ci.get("client_id", event.get("agent_id", "unknown"))
+            if cid not in seen:
+                seen[cid] = {
+                    "client_id": cid,
+                    "client_name": ci.get("client_name", event.get("agent_id", "unknown")),
+                    "transport": ci.get("transport", event.get("agent_runtime", "unknown")),
+                    "last_seen": event.get("timestamp", ""),
+                    "call_count": 1,
+                }
+            else:
+                seen[cid]["call_count"] += 1
+                seen[cid]["last_seen"] = event.get("timestamp", "")
+        return list(seen.values())
+
+    def _find_last_claude_desktop_event(self, events: list[dict]) -> dict | None:
+        for event in reversed(events):
+            ci = event.get("client_identity", {}) or {}
+            if ci.get("client_id") == "claude-desktop" or event.get("agent_id") == "claude-desktop":
+                return {
+                    "timestamp": event.get("timestamp", ""),
+                    "tool_name": event.get("tool_name", ""),
+                    "disposition": event.get("disposition", ""),
+                    "policy_rule": event.get("policy_rule", ""),
+                }
+        return None
 
     def _service_status(self, service_name: str) -> dict:
         enabled_ok, enabled_out, enabled_err = self._run_command(["systemctl", "--user", "is-enabled", service_name])

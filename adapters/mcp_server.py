@@ -97,11 +97,25 @@ class SlimyMCPServer:
             tool_name = call_name.replace("slimyos_", "", 1)
             arguments = params.get("arguments", {})
 
+            # Build client identity from env vars
+            client_identity = {
+                "client_id": os.environ.get("SLIMYOS_MCP_AGENT_ID", self.agent_id),
+                "client_name": os.environ.get("SLIMYOS_MCP_AGENT_NAME", self.agent_id),
+                "client_kind": os.environ.get("SLIMYOS_MCP_AGENT_KIND", "bridge"),
+                "transport": os.environ.get("SLIMYOS_MCP_TRANSPORT", self.agent_runtime),
+                "session_id": os.environ.get("SLIMYOS_MCP_SESSION_ID", ""),
+                "request_id": os.environ.get("SLIMYOS_MCP_REQUEST_ID", ""),
+                "user_visible_source": os.environ.get("SLIMYOS_MCP_USER_VISIBLE_SOURCE", ""),
+                "started_at": os.environ.get("SLIMYOS_MCP_STARTED_AT", ""),
+                "repo_path": os.environ.get("SLIMYOS_REPO_PATH", ""),
+            }
+
             payload = {
                 "args": arguments,
                 "agent_id": self.agent_id,
                 "agent_runtime": self.agent_runtime,
                 "task_id": "mcp-task",
+                "client_identity": client_identity,
             }
             try:
                 tool_result = self._http_post_json(

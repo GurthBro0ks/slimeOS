@@ -143,6 +143,32 @@ def check_safety(event: dict[str, Any]) -> dict[str, Any]:
 
 
 def infer_client_identity(event: dict[str, Any]) -> dict[str, Any]:
+    # Prefer explicit client_identity metadata if present
+    ci = event.get("client_identity", {}) or {}
+    if ci:
+        cid = ci.get("client_id", "")
+        cname = ci.get("client_name", "")
+        if cid == "claude-desktop" or cname == "Claude Desktop":
+            return {
+                "client_identity": "explicit_claude_desktop",
+                "confidence": "high",
+                "client_id": cid,
+                "client_name": cname,
+                "client_kind": ci.get("client_kind", ""),
+                "transport": ci.get("transport", ""),
+                "source": "audit_event.client_identity",
+            }
+        return {
+            "client_identity": cid or "inferred",
+            "confidence": "high" if cid else "medium",
+            "client_id": cid,
+            "client_name": cname,
+            "client_kind": ci.get("client_kind", ""),
+            "transport": ci.get("transport", ""),
+            "source": "audit_event.client_identity",
+        }
+
+    # Fallback: infer from legacy agent_id/agent_runtime fields
     agent_id = event.get("agent_id", "")
     agent_runtime = event.get("agent_runtime", "")
     if agent_id == "claude-desktop" or agent_runtime == "claude-desktop":
@@ -151,12 +177,14 @@ def infer_client_identity(event: dict[str, Any]) -> dict[str, Any]:
             "confidence": "high",
             "agent_id": agent_id,
             "agent_runtime": agent_runtime,
+            "source": "audit_event.agent_id/agent_runtime",
         }
     return {
         "client_identity": "inferred",
         "confidence": "medium",
         "agent_id": agent_id,
         "agent_runtime": agent_runtime,
+        "source": "inferred",
         "note": (
             "Direct client identity is not present in audit logs. "
             "Classified as real-client inferred from timestamp + matching tool call + manual Claude output."

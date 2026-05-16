@@ -317,6 +317,15 @@ body {
     <div class="card-body" id="agents"></div>
   </div>
 
+  <!-- Recent Client Activity -->
+  <div class="card" style="grid-column: span 2; border-color:#7c3aed66">
+    <div class="card-header">
+      <h2 style="color:#7c3aed">👤 Recent Client Activity</h2>
+      <span class="count" id="client-activity-count">0</span>
+    </div>
+    <div class="card-body" id="client-activity" style="max-height:300px"></div>
+  </div>
+
   <!-- Event Stream -->
   <div class="card" style="grid-column: span 2;">
     <div class="card-header">
@@ -480,6 +489,32 @@ function render(data) {
       <span style="color:#94a3b8;font-size:11px">${JSON.stringify(e.data||{}).substring(0,120)}</span>
     </div>
   `).join('') || '<div style="color:#64748b;font-size:12px">No events yet</div>';
+
+  // Recent Client Activity
+  const activity = data.recent_client_activity || [];
+  document.getElementById('client-activity-count').textContent = activity.length;
+  document.getElementById('client-activity').innerHTML = activity.slice().reverse().map(a => {
+    const dispColor = a.disposition === 'allowed' ? '#06d6a0' : (a.disposition === 'blocked' ? '#ef4444' : '#f59e0b');
+    const unsafeBadge = a.unsafe_action ? '<span class="badge badge-red" style="margin-left:6px">UNSAFE</span>' : '';
+    const modifiedBadge = a.files_modified ? '<span class="badge badge-yellow" style="margin-left:6px">MODIFIED</span>' : '';
+    return `
+    <div class="event-row" style="border-bottom:1px solid #1e293b22">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#e2e8f0;font-weight:600">${a.client_name}</span>
+        <span style="font-size:10px;color:#64748b">${a.transport}</span>
+      </div>
+      <div style="margin-top:4px">
+        <span style="color:#7c3aed;font-weight:600">${a.tool_name}</span>
+        <span style="color:${dispColor};font-weight:700;margin-left:8px">${a.disposition.toUpperCase()}</span>
+        ${unsafeBadge}${modifiedBadge}
+      </div>
+      <div style="font-size:10px;color:#64748b;margin-top:4px">
+        Policy: ${a.policy_rule || '-'} · ${(a.timestamp||'').substring(11,19)}
+      </div>
+      ${a.result_summary ? `<div style="font-size:10px;color:#94a3b8;margin-top:2px">${a.result_summary}</div>` : ''}
+    </div>
+    `;
+  }).join('') || '<div style="color:#64748b;font-size:12px">No client activity yet</div>';
 }
 
 function stat(n, label, color) {

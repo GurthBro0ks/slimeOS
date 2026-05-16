@@ -88,6 +88,7 @@ class ToolBroker:
         agent_id: str = "unknown",
         agent_runtime: str = "unknown",
         task_id: str = "default",
+        client_identity: Optional[dict] = None,
     ) -> ToolResult:
         """
         Execute a tool call through the full policy → execute → audit pipeline.
@@ -104,6 +105,7 @@ class ToolBroker:
             tool_args=tool_args,
             work_room=manifest.get("work_room", "") if manifest else "",
             risk_level=manifest.get("risk_level", "") if manifest else "",
+            client_identity=client_identity,
         )
 
         # Unknown tool → block
@@ -117,6 +119,7 @@ class ToolBroker:
                 tool_args=tool_args,
                 disposition="blocked",
                 policy_rule="unknown_tool",
+                client_identity=client_identity,
             )
             return ToolResult(
                 success=False,
@@ -145,6 +148,7 @@ class ToolBroker:
             policy_rule=decision.rule,
             work_room=manifest.get("work_room", ""),
             risk_level=manifest.get("risk_level", ""),
+            client_identity=client_identity,
         )
 
         # Handle non-ALLOW dispositions
@@ -166,6 +170,7 @@ class ToolBroker:
                 tool_args=tool_args,
                 disposition="approval_required",
                 policy_rule=decision.rule,
+                client_identity=client_identity,
             )
             return ToolResult(
                 success=False,
@@ -211,6 +216,7 @@ class ToolBroker:
                 result={"success": True, "output": str(result.get("output", ""))[:500]},
                 files_changed=result.get("files_changed", []),
                 work_room=manifest.get("work_room", ""),
+                client_identity=client_identity,
             )
 
             return ToolResult(
@@ -231,6 +237,7 @@ class ToolBroker:
                 tool_args=tool_args,
                 disposition="allowed",
                 result={"success": False, "error": str(e)},
+                client_identity=client_identity,
             )
             return ToolResult(
                 success=False,

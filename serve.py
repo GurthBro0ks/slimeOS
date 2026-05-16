@@ -165,10 +165,12 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
             agent_runtime = body.get("agent_runtime", self.headers.get("X-Agent-Runtime", "http"))
             task_id = body.get("task_id", self.headers.get("X-Task-Id", "default"))
             tool_args = body.get("args", body.get("input", body.get("parameters", {})))
+            client_identity = body.get("client_identity", {})
 
             result = broker.call(
                 tool_name=name, tool_args=tool_args,
                 agent_id=agent_id, agent_runtime=agent_runtime, task_id=task_id,
+                client_identity=client_identity,
             )
 
             # Record failure if tool failed

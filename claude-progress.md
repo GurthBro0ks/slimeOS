@@ -174,7 +174,7 @@
 
 - Added real-client proof generator: `adapters/prove_claude_desktop_client.py`.
 - Added proof script: `scripts/prove-claude-desktop-client.sh`.
-- Added test coverage: `tests/test_prove_claude_desktop_client.py` (20 tests).
+- Added test coverage: `tests/test_prove_claude_desktop_client.py` (20 tests, all pass).
 - Script inspects SlimyOS audit logs for evidence of Claude Desktop GUI tool calls.
 - Found explicit `claude-desktop` agent_id/agent_runtime in audit:
   - Event: `list_directory` with disposition `allowed`
@@ -197,3 +197,58 @@
 - Operation disposition: allowed
 - Files modified: no
 - Unsafe actions: none
+
+## Session: Client Identity / Session Visibility
+
+- Added client identity model: `adapters/client_identity.py`.
+  - Stable identity envelope: client_id, client_name, client_kind, transport, session_id, request_id, user_visible_source, started_at, repo_path.
+  - Predefined identities for Claude Desktop, Claude Code, OpenCode, Codex.
+  - Reads from environment variables for MCP bridge context.
+  - Privacy rule: never includes private chat text.
+- Updated MCP bridge: `adapters/mcp_server.py`.
+  - Every `tools/call` now attaches `client_identity` metadata to the Tool Broker payload.
+  - Identity built from `SLIMYOS_MCP_AGENT_ID`, `SLIMYOS_MCP_AGENT_NAME`, `SLIMYOS_MCP_AGENT_KIND`, `SLIMYOS_MCP_TRANSPORT` env vars.
+- Updated Tool Broker: `services/slimy-toold/broker.py`.
+  - `call()` method now accepts optional `client_identity` dict.
+  - Passes client_identity through to all audit log calls (request, blocked, allowed, executed, failed, approval_required).
+  - Fully backward compatible: old callers omitting client_identity still work.
+- Updated Audit Logger: `services/slimy-auditd/logger.py`.
+  - `log()` method now accepts optional `client_identity` dict.
+  - Writes `client_identity` field into every audit event.
+  - Empty/default when not provided (backward compatible).
+- Updated API server: `serve.py`.
+  - POST `/tools/<name>` extracts `client_identity` from request body and passes to broker.
+- Updated Dashboard / Mission Control: `dashboard/mission_control.py` and `dashboard/runtime_status.py`.
+  - Runtime status collector now extracts `recent_client_activity`, `clients_seen`, and `last_claude_desktop_event` from audit events.
+  - Client activity includes: timestamp, client name, transport, tool name, disposition badge, policy rule, files modified flag, unsafe action flag, short result summary.
+  - Dashboard HTML now includes a "Recent Client Activity" panel with dark/neon styling.
+  - API endpoints `/api/runtime` and `/api/state` include the new fields.
+- Updated proof script: `adapters/prove_claude_desktop_client.py`.
+  - `infer_client_identity()` now prefers explicit `client_identity` metadata in audit events.
+  - Falls back to legacy `agent_id`/`agent_runtime` inference when metadata absent.
+  - Does not invent identity; clearly labels source as `audit_event.client_identity` or `inferred`.
+- Added smoke test: `scripts/smoke-client-identity.sh`.
+  - Makes safe MCP tool call through bridge.
+  - Verifies audit event includes client_id, client_name, transport.
+  - Verifies runtime API includes recent_client_activity and clients_seen.
+  - Verifies raw_shell remains blocked.
+  - Verifies no secrets or chat text are stored in audit.
+- Added test coverage: `tests/test_client_identity.py` (15 tests, all pass).
+  - Tests client identity model (default, roundtrip, predefined, from_env).
+  - Tests inference logic (prefers metadata, falls back, inferred, does not invent).
+  - Tests audit log inclusion and backward compatibility.
+  - Tests privacy (no chat text in identity or audit).
+  - Tests runtime status extraction (activity, clients_seen, last_claude_desktop_event).
+- All 102 unit tests pass.
+- All verification scripts pass.
+
+## Proof
+
+- Client identity smoke proof directory: `/tmp/proof_slimyos_client_identity_20260516T153438Z`
+- Result: PASS
+- Audit event includes client_identity: yes
+- Client identity fields: client_id=claude_desktop, client_name=Claude Desktop, transport=mcp_stdio
+- Runtime API includes recent_client_activity: yes
+- Runtime API includes clients_seen: yes
+- raw_shell blocked: yes
+- Privacy clean: yes (no chat text, no secrets)
