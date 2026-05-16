@@ -29,6 +29,45 @@ def _log_stderr(msg: str) -> None:
     print(f"[slimyos-mcp] {msg}", file=sys.stderr, flush=True)
 
 
+def _normalize_client_identity(raw: dict[str, str], fallback_runtime: str) -> dict[str, str]:
+    """Normalize known MCP client identities without inventing unknown identities."""
+    raw_id = str(raw.get("client_id", "") or "").strip()
+    raw_name = str(raw.get("client_name", "") or "").strip()
+    raw_kind = str(raw.get("client_kind", "") or "").strip()
+    raw_transport = str(raw.get("transport", "") or "").strip()
+
+    alias_key = (raw_id or raw_name).lower().replace("-", "_").replace(" ", "_")
+    is_claude_desktop = alias_key == "claude_desktop"
+
+    if is_claude_desktop:
+        transport = raw_transport
+        if not transport or transport.lower().replace("-", "_") in {"claude_desktop", "claude", "desktop_app"}:
+            transport = "mcp_stdio"
+        return {
+            "client_id": "claude_desktop",
+            "client_name": "Claude Desktop",
+            "client_kind": raw_kind or "desktop_app",
+            "transport": transport,
+            "session_id": str(raw.get("session_id", "") or ""),
+            "request_id": str(raw.get("request_id", "") or ""),
+            "user_visible_source": str(raw.get("user_visible_source", "") or ""),
+            "started_at": str(raw.get("started_at", "") or ""),
+            "repo_path": str(raw.get("repo_path", "") or ""),
+        }
+
+    return {
+        "client_id": raw_id or "unknown",
+        "client_name": raw_name or (raw_id or "Unknown Client"),
+        "client_kind": raw_kind or "bridge",
+        "transport": raw_transport or fallback_runtime,
+        "session_id": str(raw.get("session_id", "") or ""),
+        "request_id": str(raw.get("request_id", "") or ""),
+        "user_visible_source": str(raw.get("user_visible_source", "") or ""),
+        "started_at": str(raw.get("started_at", "") or ""),
+        "repo_path": str(raw.get("repo_path", "") or ""),
+    }
+
+
 class SlimyMCPServer:
     def __init__(
         self,
@@ -98,7 +137,7 @@ class SlimyMCPServer:
             arguments = params.get("arguments", {})
 
             # Build client identity from env vars
-            client_identity = {
+            raw_identity = {
                 "client_id": os.environ.get("SLIMYOS_MCP_AGENT_ID", self.agent_id),
                 "client_name": os.environ.get("SLIMYOS_MCP_AGENT_NAME", self.agent_id),
                 "client_kind": os.environ.get("SLIMYOS_MCP_AGENT_KIND", "bridge"),
@@ -109,11 +148,15 @@ class SlimyMCPServer:
                 "started_at": os.environ.get("SLIMYOS_MCP_STARTED_AT", ""),
                 "repo_path": os.environ.get("SLIMYOS_REPO_PATH", ""),
             }
+            client_identity = _normalize_client_identity(raw_identity, self.agent_runtime)
+
+            payload_agent_id = str(client_identity.get("client_id", "") or self.agent_id)
+            payload_agent_runtime = str(client_identity.get("transport", "") or self.agent_runtime)
 
             payload = {
                 "args": arguments,
-                "agent_id": self.agent_id,
-                "agent_runtime": self.agent_runtime,
+                "agent_id": payload_agent_id,
+                "agent_runtime": payload_agent_runtime,
                 "task_id": "mcp-task",
                 "client_identity": client_identity,
             }
@@ -209,7 +252,10 @@ def run_stdio_server(server: SlimyMCPServer) -> None:
 def main() -> None:
     broker_url = os.environ.get("SLIMYOS_TOOLD_URL", "http://localhost:3003")
     agent_id = os.environ.get("SLIMYOS_MCP_AGENT_ID", "mcp-client")
-    agent_runtime = os.environ.get("SLIMYOS_MCP_AGENT_RUNTIME", "mcp-stdio")
+    agent_runtime = os.environ.get(
+        "SLIMYOS_MCP_TRANSPORT",
+        os.environ.get("SLIMYOS_MCP_AGENT_RUNTIME", "mcp_stdio"),
+    )
     server = SlimyMCPServer(
         broker_url=broker_url,
         agent_id=agent_id,

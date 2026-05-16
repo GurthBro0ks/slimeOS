@@ -190,6 +190,11 @@ def evaluate_approval_observation(
             "errors": [],
             "warnings": ["no_matching_event_or_approval"],
             "approval_id": "",
+            "tool_name": "",
+            "original_tool_name": "",
+            "policy_rule": "",
+            "approval_status": "",
+            "client_identity": {},
             "pending_approval_card": {},
         }
 
@@ -197,7 +202,8 @@ def evaluate_approval_observation(
     if not approval_id:
         errors.append("missing_approval_id")
 
-    tool_name = normalize_tool_name(str((approval or {}).get("tool_name", "") or (event or {}).get("tool_name", "")))
+    original_tool_name = str((approval or {}).get("tool_name", "") or (event or {}).get("tool_name", ""))
+    tool_name = normalize_tool_name(original_tool_name)
     if tool_name != gated_tool:
         errors.append(f"unexpected_tool_name:{tool_name}")
 
@@ -244,6 +250,11 @@ def evaluate_approval_observation(
             "errors": errors,
             "warnings": warnings,
             "approval_id": approval_id,
+            "tool_name": tool_name,
+            "original_tool_name": original_tool_name,
+            "policy_rule": str((approval or {}).get("policy_rule", "") or (event or {}).get("policy_rule", "")),
+            "approval_status": approval_status,
+            "client_identity": ci,
             "pending_approval_card": pending_approval_card,
         }
 
@@ -252,6 +263,11 @@ def evaluate_approval_observation(
         "errors": [],
         "warnings": warnings,
         "approval_id": approval_id,
+        "tool_name": tool_name,
+        "original_tool_name": original_tool_name,
+        "policy_rule": str((approval or {}).get("policy_rule", "") or (event or {}).get("policy_rule", "")),
+        "approval_status": approval_status,
+        "client_identity": ci,
         "pending_approval_card": pending_approval_card,
     }
 
@@ -578,13 +594,17 @@ def run_watch(
         new_approvals = [a for a in approvals_after if str(a.get("approval_id", "")) not in before_ids]
         new_events = [e for e in audit_after if str(e.get("event_id", "")) not in before_event_ids]
 
-        event = find_matching_event(new_events, gated_tool=gated_tool) or find_matching_event(audit_after, gated_tool=gated_tool)
+        event = find_matching_event(new_events, gated_tool=gated_tool)
         event_approval_id = extract_approval_id_from_event(event)
         approval = find_matching_approval(new_approvals, gated_tool=gated_tool, approval_id=event_approval_id) if event_approval_id else None
         if not approval:
             approval = find_matching_approval(new_approvals, gated_tool=gated_tool)
-        if not approval:
-            approval = find_matching_approval(approvals_after, gated_tool=gated_tool, approval_id=event_approval_id)
+
+        if event and not approval:
+            saw_candidate = True
+            detected_event = event
+            time.sleep(2)
+            continue
 
         if approval or event:
             saw_candidate = True
@@ -680,4 +700,10 @@ def run_watch(
         "warnings": warnings,
         "approval_id": str((detected_approval or {}).get("approval_id", "") or extract_approval_id_from_event(detected_event)),
         "pending_detected": bool(detected_approval and pending_card),
+        "detected_client_identity": (detected_approval or {}).get("client_identity", {}) or (detected_event or {}).get("client_identity", {}),
+        "detected_tool_name": normalize_tool_name(str((detected_approval or {}).get("tool_name", "") or (detected_event or {}).get("tool_name", ""))),
+        "detected_original_tool_name": str((detected_approval or {}).get("tool_name", "") or (detected_event or {}).get("tool_name", "")),
+        "detected_policy_rule": str((detected_approval or {}).get("policy_rule", "") or (detected_event or {}).get("policy_rule", "")),
+        "detected_approval_status": str((detected_approval or {}).get("status", "")),
+        "failure_reasons": errors,
     }

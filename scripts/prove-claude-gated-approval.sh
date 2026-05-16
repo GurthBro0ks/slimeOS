@@ -104,6 +104,16 @@ else:
 
 print(json.dumps(meta, indent=2))
 
+if mode == "watch":
+    print("Detected approval_id:", meta.get("approval_id", ""))
+    print("Detected client_identity:", json.dumps(meta.get("detected_client_identity", {})))
+    print("Detected tool_name:", meta.get("detected_tool_name", ""))
+    print("Detected original_tool_name:", meta.get("detected_original_tool_name", ""))
+    print("Detected policy_rule:", meta.get("detected_policy_rule", ""))
+    print("Detected approval_status:", meta.get("detected_approval_status", ""))
+    if meta.get("failure_reasons"):
+        print("Failure reasons:", json.dumps(meta.get("failure_reasons"), indent=2))
+
 result = meta.get("result", "FAIL")
 if result == "FAIL":
     sys.exit(1)

@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from unittest.mock import patch
 
@@ -186,6 +187,36 @@ class MCPBridgeTests(unittest.TestCase):
         self.assertNotIn("structuredContent", result)
         self.assertIsInstance(result["content"], list)
         self.assertEqual(result["content"][0]["type"], "text")
+
+    def test_tools_call_normalizes_claude_desktop_identity(self):
+        server = SlimyMCPServer(agent_id="claude-desktop", agent_runtime="claude-desktop")
+        captured = {}
+
+        def fake_post(_url, payload):
+            captured["payload"] = payload
+            return {"success": False, "disposition": "approval_required", "policy_rule": "require_approval"}
+
+        with patch.dict(
+            os.environ,
+            {
+                "SLIMYOS_MCP_AGENT_ID": "claude-desktop",
+                "SLIMYOS_MCP_AGENT_NAME": "claude-desktop",
+            },
+            clear=False,
+        ), patch.object(server, "_http_post_json", side_effect=fake_post):
+            server.handle_request(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 77,
+                    "method": "tools/call",
+                    "params": {"name": "slimyos_git_commit", "arguments": {"repo_path": ".", "message": "x"}},
+                }
+            )
+
+        ci = captured["payload"]["client_identity"]
+        self.assertEqual(ci["client_id"], "claude_desktop")
+        self.assertEqual(ci["client_name"], "Claude Desktop")
+        self.assertEqual(ci["transport"], "mcp_stdio")
 
 
 if __name__ == "__main__":

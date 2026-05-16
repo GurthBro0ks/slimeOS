@@ -126,6 +126,8 @@ class ApprovalFlowTests(unittest.TestCase):
         self.assertEqual(approval.status, "pending")
         self.assertEqual(approval.tool_name, "git_commit")
         self.assertEqual(approval.client_identity.get("client_id"), "claude_desktop")
+        self.assertEqual(approval.client_identity.get("client_name"), "Claude Desktop")
+        self.assertEqual(approval.client_identity.get("transport"), "mcp_stdio")
         self.assertIn(approval.policy_rule, {"require_approval", "manifest.requires_approval"})
 
     def test_pending_approval_appears_in_state(self):
@@ -135,6 +137,11 @@ class ApprovalFlowTests(unittest.TestCase):
         pending_ids = [item["approval_id"] for item in state["pending_approvals"]]
         self.assertIn(result.approval_id, pending_ids)
         self.assertGreaterEqual(state["approvals"]["pending_count"], 1)
+
+        pending = [item for item in state["pending_approvals"] if item.get("approval_id") == result.approval_id][0]
+        self.assertEqual((pending.get("client_identity") or {}).get("client_id"), "claude_desktop")
+        self.assertEqual((pending.get("client_identity") or {}).get("client_name"), "Claude Desktop")
+        self.assertEqual((pending.get("client_identity") or {}).get("transport"), "mcp_stdio")
 
     def test_deny_changes_status_and_never_executes_tool(self):
         result = self._gated_call()

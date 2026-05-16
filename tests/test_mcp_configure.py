@@ -37,6 +37,10 @@ class TestGenerateClaudeDesktopConfig(unittest.TestCase):
         self.assertIn("mcpServers", config)
         self.assertIn("slimyos", config["mcpServers"])
         self.assertIn("command", config["mcpServers"]["slimyos"])
+        env = config["mcpServers"]["slimyos"].get("env", {})
+        self.assertEqual(env.get("SLIMYOS_MCP_AGENT_ID"), "claude_desktop")
+        self.assertEqual(env.get("SLIMYOS_MCP_AGENT_NAME"), "Claude Desktop")
+        self.assertEqual(env.get("SLIMYOS_MCP_TRANSPORT"), "mcp_stdio")
 
     def test_merge_preserves_existing_servers(self):
         existing = {

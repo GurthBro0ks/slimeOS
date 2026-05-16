@@ -82,8 +82,22 @@ missing_ci_event["metadata"] = {"approval_id": "apr-no-ci"}
 missing_ci_event["client_identity"] = {}
 missing_ci_state = {"pending_approvals": [{"approval_id": "apr-no-ci", "status": "pending"}]}
 missing_ci = pcga.evaluate_approval_observation(missing_ci_approval, missing_ci_event, missing_ci_state, True, gated_tool="git_commit")
-if missing_ci.get("result") != "FAIL":
+if missing_ci.get("result") != "FAIL" or "client_identity_not_claude_desktop" not in missing_ci.get("errors", []):
     errors.append(f"missing_client_identity_not_failed:{missing_ci}")
+
+unknown_ci_approval = dict(approval)
+unknown_ci_approval["approval_id"] = "apr-unknown-ci"
+unknown_ci_approval["client_identity"] = {
+    "client_id": "unknown",
+    "client_name": "Unknown Client",
+    "transport": "mcp_stdio",
+}
+unknown_ci_event = dict(event)
+unknown_ci_event["metadata"] = {"approval_id": "apr-unknown-ci"}
+unknown_ci_state = {"pending_approvals": [{"approval_id": "apr-unknown-ci", "status": "pending"}]}
+unknown_ci = pcga.evaluate_approval_observation(unknown_ci_approval, unknown_ci_event, unknown_ci_state, True, gated_tool="git_commit")
+if unknown_ci.get("result") != "FAIL" or "client_identity_not_claude_desktop" not in unknown_ci.get("errors", []):
+    errors.append(f"unknown_client_identity_not_failed:{unknown_ci}")
 
 executed_approval = dict(approval)
 executed_approval["approval_id"] = "apr-executed"
@@ -108,6 +122,10 @@ secret_leak = pcga.evaluate_approval_observation(secret_leak_approval, secret_le
 if secret_leak.get("result") != "FAIL":
     errors.append(f"secret_leak_not_failed:{secret_leak}")
 
+repo_changed = pcga.evaluate_approval_observation(approval, event, state, False, gated_tool="git_commit")
+if repo_changed.get("result") != "FAIL" or "real_repo_changed" not in repo_changed.get("errors", []):
+    errors.append(f"repo_changed_not_failed:{repo_changed}")
+
 if config_exists:
     after_stat = config_path.stat().st_mtime
     if before_stat != after_stat:
@@ -118,8 +136,10 @@ result = "PASS" if not errors else "FAIL"
 (proof_dir / "pass_result.json").write_text(json.dumps(pass_result, indent=2), encoding="utf-8")
 (proof_dir / "pending_result.json").write_text(json.dumps(pending_result, indent=2), encoding="utf-8")
 (proof_dir / "missing_ci_result.json").write_text(json.dumps(missing_ci, indent=2), encoding="utf-8")
+(proof_dir / "unknown_ci_result.json").write_text(json.dumps(unknown_ci, indent=2), encoding="utf-8")
 (proof_dir / "executed_result.json").write_text(json.dumps(executed, indent=2), encoding="utf-8")
 (proof_dir / "secret_leak_result.json").write_text(json.dumps(secret_leak, indent=2), encoding="utf-8")
+(proof_dir / "repo_changed_result.json").write_text(json.dumps(repo_changed, indent=2), encoding="utf-8")
 (proof_dir / "warnings.json").write_text(json.dumps(warnings, indent=2), encoding="utf-8")
 (proof_dir / "errors.json").write_text(json.dumps(errors, indent=2), encoding="utf-8")
 (proof_dir / "RESULT.txt").write_text(f"RESULT={result}\n", encoding="utf-8")

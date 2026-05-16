@@ -172,6 +172,11 @@ Result meanings:
 - `PENDING_MANUAL`: no matching Claude Desktop gated request observed yet
 - `FAIL`: safety/health/privacy violation, missing pending-card evidence, or repo mutation
 
+Identity propagation note:
+- Approvals created before the identity-normalization fix may still show legacy identity fields
+  (for example `claude-desktop` transport/runtime aliases).
+- A fresh Claude Desktop gated request is required for final live PASS validation after this fix.
+
 This checkpoint intentionally does not execute Claude-originated gated requests.
 Execution remains test-lane only through explicit approved-execution flow.
 

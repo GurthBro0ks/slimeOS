@@ -386,3 +386,55 @@
 - Watch proof directory (no manual Claude request issued): `/tmp/proof_slimyos_claude_gated_approval_20260516T171951Z`
 - Watch result: `PENDING_MANUAL`
 - Full unit suite after change: `python3 -m unittest discover -s tests` -> `129 tests PASS`
+
+## Session: Claude Gated Approval Identity Propagation Fix
+
+- Investigated live pending approval and audit for `approval_id=bfedb844-72f5-4457-b692-501434260da1`.
+  - Found legacy identity fields in pending approval:
+    - `client_id=claude-desktop`
+    - `client_name=claude-desktop`
+    - `transport=claude-desktop`
+  - Watcher was correctly strict (`client_identity_not_claude_desktop`) and rejected this legacy identity shape.
+- Root cause:
+  - MCP bridge accepted legacy aliases without canonical normalization.
+  - Generated Claude Desktop MCP config snippets used legacy env values (`claude-desktop`) that propagated into approval records.
+- Fixes implemented:
+  - `adapters/mcp_server.py`:
+    - Added known-client identity normalization for Claude Desktop aliases.
+    - Canonical output now uses:
+      - `client_id=claude_desktop`
+      - `client_name=Claude Desktop`
+      - `transport=mcp_stdio`
+    - Payload `agent_id` and `agent_runtime` now follow normalized identity values.
+    - Runtime default now prefers `SLIMYOS_MCP_TRANSPORT`.
+  - `adapters/mcp_configure.py` + `adapters/mcp_doctor.py`:
+    - Updated generated Claude Desktop MCP env to canonical values:
+      - `SLIMYOS_MCP_AGENT_ID=claude_desktop`
+      - `SLIMYOS_MCP_AGENT_NAME=Claude Desktop`
+      - `SLIMYOS_MCP_AGENT_KIND=desktop_app`
+      - `SLIMYOS_MCP_TRANSPORT=mcp_stdio`
+      - `SLIMYOS_MCP_AGENT_RUNTIME=mcp_stdio`
+  - `adapters/prove_claude_gated_approval.py` + `scripts/prove-claude-gated-approval.sh`:
+    - Watch mode now inspects only *new* events/approvals (avoids stale pre-fix false FAIL on old pending approvals).
+    - Added richer diagnostic output: approval_id, client_identity, tool_name, original_tool_name, policy_rule, approval_status, failure reasons.
+    - Preserves normalized `tool_name` while exposing `original_tool_name`.
+  - Expanded tests/smoke coverage for missing/unknown identity, executed status, and repo-change fail path.
+
+## Proof
+
+- Legacy (pre-fix) live pending approval still present and unchanged:
+  - `bfedb844-72f5-4457-b692-501434260da1` (legacy identity fields)
+- New fixture/live check approval after fix:
+  - `3eff8d90-9a4a-4f5a-bbf7-f07c286896f2`
+  - `client_identity.client_id=claude_desktop`
+  - `client_identity.client_name=Claude Desktop`
+  - `client_identity.transport=mcp_stdio`
+  - `disposition=approval_required`, `policy_rule=require_approval`, `status=pending`
+- Identity-fix proof bundle:
+  - `/tmp/proof_slimyos_claude_gated_identity_fix_20260516T175535Z`
+  - `RESULT=PASS`
+- Watcher sanity after fix without fresh manual request:
+  - `/tmp/proof_slimyos_claude_gated_approval_20260516T175628Z`
+  - `RESULT=PENDING_MANUAL` (expected; no new manual Claude request issued)
+- Full unit suite after fix:
+  - `python3 -m unittest discover -s tests` -> `132 tests PASS`

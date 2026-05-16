@@ -97,6 +97,38 @@ class TestProveClaudeGatedApproval(unittest.TestCase):
         self.assertEqual(result["result"], "FAIL")
         self.assertTrue(any("approval_status_not_pending" in e for e in result["errors"]))
 
+    def test_fails_when_identity_missing(self):
+        approval = _base_approval()
+        approval["client_identity"] = {}
+        event = _base_event()
+        event["client_identity"] = {}
+        result = pcga.evaluate_approval_observation(
+            approval=approval,
+            event=event,
+            dashboard_state=_base_state(),
+            repo_unchanged_ok=True,
+            gated_tool="git_commit",
+        )
+        self.assertEqual(result["result"], "FAIL")
+        self.assertIn("client_identity_not_claude_desktop", result["errors"])
+
+    def test_fails_when_identity_unknown(self):
+        approval = _base_approval()
+        approval["client_identity"] = {
+            "client_id": "unknown",
+            "client_name": "Unknown Client",
+            "transport": "mcp_stdio",
+        }
+        result = pcga.evaluate_approval_observation(
+            approval=approval,
+            event=_base_event(),
+            dashboard_state={"pending_approvals": [{"approval_id": "apr-1"}]},
+            repo_unchanged_ok=True,
+            gated_tool="git_commit",
+        )
+        self.assertEqual(result["result"], "FAIL")
+        self.assertIn("client_identity_not_claude_desktop", result["errors"])
+
     def test_requires_dashboard_pending_card(self):
         result = pcga.evaluate_approval_observation(
             approval=_base_approval(),

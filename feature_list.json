@@ -129,7 +129,7 @@
       "id": "claude-desktop-gated-approval-proof",
       "title": "Real Claude Desktop gated approval pending-card proof",
       "status": "implemented",
-      "summary": "Adds prepare/watch proof workflow that verifies a real Claude Desktop MCP gated tool request returns approval_required, creates a pending approval with explicit Claude Desktop identity, and appears in Mission Control/API without executing the request. Enforces privacy (no chat text, secret redaction) and real-repo no-mutation checks.",
+      "summary": "Adds prepare/watch proof workflow that verifies a real Claude Desktop MCP gated tool request returns approval_required, creates a pending approval with explicit Claude Desktop identity, and appears in Mission Control/API without executing the request. Includes identity-normalization fix for legacy Claude Desktop aliases (`claude-desktop` -> `claude_desktop`, transport `mcp_stdio`) so approval records propagate stable identity fields. Enforces privacy (no chat text, secret redaction) and real-repo no-mutation checks.",
       "verification": {
         "unit_tests": "python3 -m unittest tests.test_prove_claude_gated_approval",
         "full_tests": "python3 -m unittest discover -s tests",

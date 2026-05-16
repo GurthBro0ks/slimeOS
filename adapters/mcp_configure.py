@@ -82,8 +82,11 @@ def generate_claude_desktop_config(
         "args": [],
         "env": {
             "SLIMYOS_TOOLD_URL": broker_url,
-            "SLIMYOS_MCP_AGENT_ID": "claude-desktop",
-            "SLIMYOS_MCP_AGENT_RUNTIME": "claude-desktop",
+            "SLIMYOS_MCP_AGENT_ID": "claude_desktop",
+            "SLIMYOS_MCP_AGENT_NAME": "Claude Desktop",
+            "SLIMYOS_MCP_AGENT_KIND": "desktop_app",
+            "SLIMYOS_MCP_TRANSPORT": "mcp_stdio",
+            "SLIMYOS_MCP_AGENT_RUNTIME": "mcp_stdio",
         },
     }
 
