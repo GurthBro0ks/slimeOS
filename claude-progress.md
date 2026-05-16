@@ -353,3 +353,36 @@
   - smoke-client-identity
   - smoke-approval-flow
   - smoke-approved-execution
+
+## Session: Real Claude Desktop Gated Approval Pending-Card Proof Workflow
+
+- Added helper module: `adapters/prove_claude_gated_approval.py`.
+  - `prepare` mode performs broker/dashboard/config/policy checks, captures approval+audit baselines, writes manual prompt, emits proof artifacts, and returns `PENDING_MANUAL` when ready for operator action.
+  - `watch` mode polls for new `approval_required` gated requests and verifies all required evidence before PASS:
+    - `client_identity.client_id == claude_desktop`
+    - `tool_name == git_commit` (or configured gated tool)
+    - `approval_id` exists
+    - approval status remains `pending`
+    - Mission Control/API exposes matching pending approval card
+    - no `execution_status == executed`
+    - real SlimyOS repo unchanged
+  - Includes privacy/safety checks: no chat-text storage and secret-like value redaction checks.
+- Added proof script: `scripts/prove-claude-gated-approval.sh`.
+  - Modes: `--prepare`, `--watch`, `--watch-seconds`, URL overrides, proof-dir override.
+  - Writes required proof pack artifacts under `/tmp/proof_slimyos_claude_gated_approval_<UTC>/`.
+- Added smoke script: `scripts/smoke-claude-gated-approval.sh`.
+  - Validates PASS path with fake Claude pending approval, PENDING_MANUAL path, missing identity FAIL, executed-status FAIL, and unredacted-secret FAIL.
+  - Confirms no real Claude Desktop config mutation.
+- Added tests: `tests/test_prove_claude_gated_approval.py` (9 tests).
+  - covers detection, approval_id/pending requirements, pending-card visibility checks, execution guard, repo mutation guard, PENDING_MANUAL behavior, redaction and chat-text checks.
+- Updated `README.md` and `feature_list.json` with runbook, prompt, result semantics, privacy guarantees, rollback command, and intentional no-execution boundary for Claude-originated requests.
+
+## Proof
+
+- New smoke proof directory: `/tmp/proof_slimyos_claude_gated_approval_smoke_20260516T171919Z`
+- Smoke result: `PASS`
+- Prepare proof directory (local services): `/tmp/proof_slimyos_claude_gated_approval_20260516T171939Z`
+- Prepare result: `PENDING_MANUAL`
+- Watch proof directory (no manual Claude request issued): `/tmp/proof_slimyos_claude_gated_approval_20260516T171951Z`
+- Watch result: `PENDING_MANUAL`
+- Full unit suite after change: `python3 -m unittest discover -s tests` -> `129 tests PASS`

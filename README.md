@@ -139,6 +139,52 @@ This validates approve + execute flow in a disposable demo repo, verifies one-ti
 execution semantics, refusal paths (already used / denied / args mismatch / unsafe tool),
 audit start/finish events, privacy redaction, and that the real SlimyOS repo is untouched.
 
+Run Claude Desktop gated approval proof (real client, no execution):
+
+```bash
+./scripts/prove-claude-gated-approval.sh --prepare
+```
+
+`--prepare` captures baseline state, writes a manual prompt, and returns
+`RESULT=PENDING_MANUAL` while waiting for a real Claude Desktop request.
+
+Manual prompt used in Claude Desktop:
+
+```text
+Use the SlimyOS MCP tools to request a git_commit with a harmless test message, but do not execute anything. I only want to verify that SlimyOS returns approval_required and creates a Mission Control approval card.
+```
+
+After pasting the prompt into Claude Desktop, run:
+
+```bash
+./scripts/prove-claude-gated-approval.sh --watch
+```
+
+Watch mode passes only when all conditions are true:
+- Claude Desktop identity present (`client_identity.client_id == claude_desktop`)
+- Gated tool request is `approval_required` with `approval_id`
+- Approval remains `pending` and appears in Mission Control/API pending approvals
+- No `execution_status=executed` for the Claude-originated request
+- Real SlimyOS repo remains unchanged
+
+Result meanings:
+- `PASS`: pending Claude Desktop approval card detected with required identity/evidence
+- `PENDING_MANUAL`: no matching Claude Desktop gated request observed yet
+- `FAIL`: safety/health/privacy violation, missing pending-card evidence, or repo mutation
+
+This checkpoint intentionally does not execute Claude-originated gated requests.
+Execution remains test-lane only through explicit approved-execution flow.
+
+Privacy rule is enforced in proof artifacts:
+- no private Claude chat text stored
+- secret-like args are redacted before storage
+
+Rollback if Claude Desktop MCP config breaks:
+
+```bash
+./scripts/slimyos-mcp-configure.sh --rollback
+```
+
 Run MCP bridge smoke verification:
 
 ```bash
