@@ -153,7 +153,7 @@ class ApprovalFlowTests(unittest.TestCase):
         decision = self.broker.decide_approval(result.approval_id, approved=True, decided_by="tester")
 
         self.assertIsNotNone(decision)
-        self.assertEqual(decision["status"], "approved_pending_manual_execution")
+        self.assertEqual(decision["status"], "approved")
         self.assertEqual(decision["decided_by"], "tester")
         self.assertEqual(self.git_commit_calls, 0)
 

@@ -14,6 +14,7 @@ Starts the tool broker as an HTTP API that any agent runtime can call.
   POST /panic            → panic stop
   POST /approve          → approve a pending request
   POST /deny             → deny a pending request
+  POST /execute-approved → execute approved test-lane action
 
 Start: python3 serve.py
 Default: http://0.0.0.0:3003
@@ -180,7 +181,7 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
                 "GET /health", "GET /tools", "GET /tools/<name>",
                 "POST /tools/<name>", "GET /audit/recent", "GET /state",
                 "GET /approvals", "GET /failures", "GET /mcp/tools",
-                "POST /panic", "POST /approve", "POST /deny",
+                "POST /panic", "POST /approve", "POST /deny", "POST /execute-approved",
             ]}, 404)
 
     def do_POST(self):
@@ -242,6 +243,20 @@ class ToolAPIHandler(http.server.BaseHTTPRequestHandler):
                 self._json({"ok": False, "error": "unknown_approval_id", "approval_id": approval_id}, 404)
             else:
                 self._json({"ok": True, "approval": req})
+
+        elif self.path == "/execute-approved":
+            approval_id = body.get("approval_id", body.get("request_id", ""))
+            confirm = body.get("confirm", "")
+            decided_by = body.get("decided_by", "api")
+            caller_args = body.get("args")
+            result = broker.execute_approved(
+                approval_id=approval_id,
+                confirm=confirm,
+                caller_args=caller_args,
+                decided_by=decided_by,
+            )
+            status = 200 if result.get("ok") else 400
+            self._json(result, status)
 
         elif self.path == "/tasks":
             task = hub.create_task(
@@ -316,6 +331,7 @@ def main():
     POST /panic           — emergency stop
     POST /approve         — approve request
     POST /deny            — deny request
+    POST /execute-approved — execute approved test-lane action
     GET  /mcp/tools       — MCP-compatible tool list
 
   Press Ctrl+C to stop.

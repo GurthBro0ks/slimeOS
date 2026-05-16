@@ -112,6 +112,18 @@
         "smoke": "./scripts/smoke-approval-flow.sh",
         "approval_flow_proof": "/tmp/proof_slimyos_approval_flow_20260516T161153Z"
       }
+    },
+    {
+      "id": "approved-execution-test-lane",
+      "title": "Approved execution support in safe disposable test lane",
+      "status": "implemented",
+      "summary": "Adds explicit execute-approved flow with strict one-time approval_id checks, args snapshot matching, allowlisted tool enforcement, and path-lane safety gates. Only git_commit is executable and only inside disposable /tmp proof lanes. Mission Control now surfaces execution status and test-lane execute controls. Real project repos remain non-executable through this path.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_approved_execution",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "smoke": "./scripts/smoke-approved-execution.sh",
+        "approved_execution_proof": "/tmp/proof_slimyos_approved_execution_20260516T162811Z"
+      }
     }
   ]
 }

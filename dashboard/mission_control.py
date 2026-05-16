@@ -253,8 +253,14 @@ body {
   padding: 8px 20px; border-radius: 6px; font-weight: 700; cursor: pointer;
   font-family: inherit; font-size: 12px; flex: 1;
 }
+.btn-execute {
+  background: #0ea5e9; color: #06131e; border: none;
+  padding: 8px 10px; border-radius: 6px; font-weight: 700; cursor: pointer;
+  font-family: inherit; font-size: 11px; width: 100%; margin-top: 8px;
+}
 .btn-approve:hover { background: #05c090; }
 .btn-deny:hover { background: #ef444455; }
+.btn-execute:hover { background: #0284c7; }
 
 .decision-note {
   margin-top: 8px; font-size: 11px; color: #94a3b8;
@@ -466,10 +472,17 @@ function render(data) {
         <div class="approval-meta">Created: ${(a.created_at || '').substring(11,19) || '--:--:--'} · ID: ${(a.approval_id || '').substring(0,8)}</div>
         <div class="approval-args">${a.requested_args_summary || JSON.stringify(a.requested_args_redacted || {}).substring(0,120)}</div>
         <div class="approval-meta">Audit: ${a.audit_event_id || '-'} ${a.proof_ref ? '· Proof: ' + a.proof_ref : ''}</div>
+        <div class="approval-meta">Execution: ${a.execution_status || 'not_executed'} ${a.execution_result_summary ? '· ' + a.execution_result_summary : ''}</div>
+        ${a.execution_error ? `<div class="approval-meta" style="color:#ef4444">Refusal/Error: ${a.execution_error}</div>` : ''}
         <div class="approval-btns">
           <button class="btn-approve" onclick="approve('${a.approval_id}')">✓ Approve</button>
           <button class="btn-deny" onclick="deny('${a.approval_id}')">✕ Deny</button>
         </div>
+        ${a.status === 'approved' && a.execute_test_lane_eligible && a.execution_status !== 'executed' && !a.used
+            ? `<button class="btn-execute" onclick="executeApproved('${a.approval_id}')">Execute Approved Test-Lane Action</button>`
+            : (a.status === 'approved'
+              ? '<div class="approval-meta">approved_pending_manual_execution</div>'
+              : '')}
       </div>
     `).join('');
   }
@@ -579,6 +592,22 @@ async function deny(approvalId) {
   fetchState();
 }
 
+async function executeApproved(approvalId) {
+  const response = await fetch('/api/execute-approved', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      approval_id: approvalId,
+      confirm: 'execute-approved-test-lane',
+    }),
+  });
+  const result = await response.json();
+  if (!result.ok) {
+    console.error('execute_approved_failed', result);
+  }
+  fetchState();
+}
+
 async function togglePanic() {
   await fetch('/api/panic', {method:'POST'});
   fetchState();
@@ -660,6 +689,24 @@ class MissionControlHandler(http.server.BaseHTTPRequestHandler):
                     f"{BROKER_URL}/deny",
                     {
                         "approval_id": body.get("approval_id", body.get("request_id", "")),
+                        "decided_by": "dashboard",
+                    },
+                )
+                self.send_json(response)
+            except (urlerror.URLError, TimeoutError) as exc:
+                self.send_json({"ok": False, "error": str(exc)}, 502)
+        elif self.path == "/api/execute-approved":
+            body = self._read_body()
+            if DEMO_MODE:
+                self.send_json({"ok": False, "error": "demo_mode_execute_not_supported", "demo_mode": True}, 400)
+                return
+            try:
+                response = _http_post_json(
+                    f"{BROKER_URL}/execute-approved",
+                    {
+                        "approval_id": body.get("approval_id", body.get("request_id", "")),
+                        "confirm": body.get("confirm", ""),
+                        "args": body.get("args"),
                         "decided_by": "dashboard",
                     },
                 )

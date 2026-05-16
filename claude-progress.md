@@ -296,3 +296,60 @@
 - Result: PASS
 - Full unit suite: `python3 -m unittest discover -s tests` -> `110 tests PASS`
 - Full verification/smoke suite rerun PASS (Hermes remains WARN `auth_required_or_proxy_down`)
+
+## Session: Approved Execution (Safe Test-Lane Only)
+
+- Added approved execution state model fields to approval requests in `services/slimy-toold/broker.py`:
+  - `execution_status`, `execution_started_at`, `execution_finished_at`, `execution_result_summary`, `execution_audit_event_id`, `execution_proof_ref`, `execution_error`, `one_time_use`, `used`.
+- Added strict approved-execution endpoint support:
+  - Broker method: `execute_approved(...)`
+  - API route: `POST /execute-approved` in `serve.py`
+  - Dashboard proxy route: `POST /api/execute-approved` in `dashboard/mission_control.py`
+- Safety gates for approved execution:
+  - Requires `approval_id`, approved status, explicit confirm token (`execute-approved-test-lane`), one-time-use, and args snapshot match.
+  - Only allowlisted tool: `git_commit`.
+  - Only allowlisted path lane prefixes: `/tmp/proof_slimyos_approved_execution_*` and `/tmp/slimyos_approved_execution_demo_*`.
+  - Refuses denied/expired/non-approved/unknown/missing/already-used/args-mismatch/outside-lane/unsafe-tool calls.
+  - Refusals are audited with `approval_execution_refused`.
+- Added audited execution lifecycle:
+  - `approval_execution_start`
+  - `approval_execution_finish`
+  - runtime proof artifact writer for executed requests.
+- Updated Mission Control approval panel:
+  - Shows execution status and result/refusal info.
+  - Shows `Execute Approved Test-Lane Action` button only for safe eligible approvals.
+  - Keeps non-eligible approvals manual (`approved_pending_manual_execution` display).
+- Added smoke script `scripts/smoke-approved-execution.sh`:
+  - Builds disposable demo repo under proof dir.
+  - Verifies end-to-end approved execution for gated `git_commit` only in test lane.
+  - Verifies no mutation of real SlimyOS repo.
+  - Verifies one-time-use, denied refusal, args mismatch refusal, raw_shell blocked, and privacy redaction.
+  - Writes required proof bundle artifacts.
+- Added tests `tests/test_approved_execution.py` and updated `tests/test_approval_flow.py`:
+  - Missing/unknown/denied/already-used refusal paths.
+  - Unsafe tool refusal.
+  - Outside-lane refusal.
+  - Args mismatch refusal.
+  - Successful test-lane `git_commit` execution.
+  - Execution audit start/finish presence.
+  - No chat text persistence and raw_shell block evidence.
+
+## Proof
+
+- Approved execution smoke proof directory: `/tmp/proof_slimyos_approved_execution_20260516T162811Z`
+- Result: PASS
+- Full unit suite after changes: `python3 -m unittest discover -s tests` -> `120 tests PASS`
+- Full verification suite PASS:
+  - smoke-live-runtime
+  - preflight-agent-clients
+  - smoke-mcp-bridge
+  - slimyos-mcp-doctor
+  - slimyos-mcp-healthline
+  - smoke-mcp-configure
+  - smoke-claude-desktop-mcp
+  - verify-claude-desktop-mcp
+  - smoke-claude-mcp-protocol
+  - prove-claude-desktop-client --recent
+  - smoke-client-identity
+  - smoke-approval-flow
+  - smoke-approved-execution

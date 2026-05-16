@@ -85,10 +85,15 @@ Approval visibility is now first-class:
   - `GET /approvals`
   - `POST /approve` with `approval_id`
   - `POST /deny` with `approval_id`
+  - `POST /execute-approved` with `approval_id` + `confirm=execute-approved-test-lane`
 
 Current checkpoint behavior is intentionally conservative:
-- Approval decisions are recorded as `denied` or `approved_pending_manual_execution`
-- No automatic post-approval execution is performed yet for `git_commit`
+- Approval decisions are recorded as `approved` or `denied`
+- Approve alone does not execute any tool
+- Approved execution is test-lane only (safe disposable repos under `/tmp/proof_slimyos_approved_execution_*`)
+- Only `git_commit` is allowlisted for approved execution in this checkpoint
+- `approval_id` is one-time-use for execution
+- Non-test-lane approvals stay manual (`approved_pending_manual_execution` in Mission Control UI)
 - Privacy rule remains enforced: no private chat text stored in approval/audit payloads
 - Secret-like args are redacted before audit storage
 
@@ -123,6 +128,16 @@ Run approval-flow smoke proof:
 This validates end-to-end approval visibility (gated MCP call, pending approval state,
 deny/approve recording, raw-shell block evidence, privacy redaction) without executing
 destructive host actions.
+
+Run approved execution smoke proof (safe test lane only):
+
+```bash
+./scripts/smoke-approved-execution.sh
+```
+
+This validates approve + execute flow in a disposable demo repo, verifies one-time-use
+execution semantics, refusal paths (already used / denied / args mismatch / unsafe tool),
+audit start/finish events, privacy redaction, and that the real SlimyOS repo is untouched.
 
 Run MCP bridge smoke verification:
 
