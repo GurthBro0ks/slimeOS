@@ -75,6 +75,19 @@
         "verify": "./scripts/verify-claude-desktop-mcp.sh",
         "live_proof": "/tmp/proof_slimyos_claude_desktop_live_20260515T170832Z"
       }
+    },
+    {
+      "id": "claude-desktop-real-client-proof",
+      "title": "Real Claude Desktop GUI MCP use verified via audit proof pack",
+      "status": "implemented",
+      "summary": "Inspects SlimyOS audit logs for evidence of Claude Desktop GUI tool calls. Supports --recent and --watch modes. Detects explicit claude-desktop agent identity, verifies policy-enforced list_directory with allowed disposition, confirms no file mutations and no unsafe actions. Generates comprehensive proof artifacts. Does not read chats or automate GUI.",
+      "verification": {
+        "unit_tests": "python3 -m unittest tests.test_prove_claude_desktop_client",
+        "full_tests": "python3 -m unittest discover -s tests",
+        "prove_recent": "./scripts/prove-claude-desktop-client.sh --recent",
+        "prove_watch": "./scripts/prove-claude-desktop-client.sh --watch 180",
+        "real_client_proof": "/tmp/proof_slimyos_claude_desktop_real_client_20260516T145939Z"
+      }
     }
   ]
 }

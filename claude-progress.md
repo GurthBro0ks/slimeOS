@@ -169,3 +169,31 @@
 - No raw error leakage: PASS
 - No extra keys in tool definitions: PASS
 - No structuredContent in responses: PASS
+
+## Session: Real-Client Verification Proof Pack
+
+- Added real-client proof generator: `adapters/prove_claude_desktop_client.py`.
+- Added proof script: `scripts/prove-claude-desktop-client.sh`.
+- Added test coverage: `tests/test_prove_claude_desktop_client.py` (20 tests).
+- Script inspects SlimyOS audit logs for evidence of Claude Desktop GUI tool calls.
+- Found explicit `claude-desktop` agent_id/agent_runtime in audit:
+  - Event: `list_directory` with disposition `allowed`
+  - Policy rule: `tool_overrides.list_directory.disposition`
+  - Files changed: none
+  - Safety: no raw_shell, no file mutations, no privileged restarts
+- Supports `--recent` mode (inspect existing audit) and `--watch N` mode (wait for fresh event).
+- Does not read Claude chats, scrape Claude Desktop content, or automate GUI.
+- Does not invent client identity; explicitly classifies as `explicit_claude_desktop` or `inferred`.
+- All 87 unit tests pass.
+- All verification scripts pass: smoke-live-runtime, preflight-agent-clients, smoke-mcp-bridge, slimyos-mcp-doctor, slimyos-mcp-healthline, smoke-mcp-configure, smoke-claude-desktop-mcp, verify-claude-desktop-mcp, smoke-claude-mcp-protocol, prove-claude-desktop-client.
+
+## Proof
+
+- Real-client proof directory: `/tmp/proof_slimyos_claude_desktop_real_client_20260516T145939Z`
+- Result: PASS
+- Matching audit event found: yes
+- Client identity: explicit_claude_desktop (high confidence)
+- Policy rule: tool_overrides.list_directory.disposition
+- Operation disposition: allowed
+- Files modified: no
+- Unsafe actions: none
