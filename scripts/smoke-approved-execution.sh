@@ -368,6 +368,41 @@ if [[ $? -ne 0 ]]; then
   ERRORS+=("args_mismatch_not_refused")
 fi
 
+echo "=== Refusal: unsafe tool (install_package) ==="
+UNSAFE_REQ="$(call_mcp_tool "slimyos_install_package" "{\"package_name\": \"demo-package\", \"reason\": \"unsafe execution refusal check\"}" "approved-exec-req-unsafe")"
+printf '%s\n' "$UNSAFE_REQ" > "$PROOF_DIR/unsafe_request.json"
+UNSAFE_APPROVAL_ID="$(python3 - "$PROOF_DIR" <<'PY'
+import json
+import sys
+from pathlib import Path
+payload = json.loads((Path(sys.argv[1]) / "unsafe_request.json").read_text())
+print(payload.get("tool_result", {}).get("approval_id", ""))
+PY
+)"
+
+curl -sS -X POST "$BROKER_URL/approve" \
+  -H "Content-Type: application/json" \
+  -d "{\"approval_id\": \"$UNSAFE_APPROVAL_ID\", \"decided_by\": \"smoke-approved-execution\"}" > "$PROOF_DIR/unsafe_approval.json" || ERRORS+=("unsafe_approve_failed")
+
+curl -sS -X POST "$BROKER_URL/execute-approved" \
+  -H "Content-Type: application/json" \
+  -d "{\"approval_id\": \"$UNSAFE_APPROVAL_ID\", \"confirm\": \"execute-approved-test-lane\"}" > "$PROOF_DIR/unsafe_tool_refusal.json" || ERRORS+=("unsafe_execute_call_failed")
+
+python3 - "$PROOF_DIR" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+resp = json.loads((Path(sys.argv[1]) / "unsafe_tool_refusal.json").read_text())
+if resp.get("ok") is True:
+    raise SystemExit("unsafe tool should be refused")
+if "tool_not_in_approved_execution_allowlist" not in str(resp.get("error", "")):
+    raise SystemExit(f"unexpected unsafe-tool refusal: {resp}")
+PY
+if [[ $? -ne 0 ]]; then
+  ERRORS+=("unsafe_tool_not_refused")
+fi
+
 echo "=== Verify raw_shell blocked ==="
 RAW_BLOCK_PAYLOAD="$(call_mcp_tool "slimyos_raw_shell" "{\"command\": \"rm -rf /\"}" "approved-exec-raw-shell")"
 printf '%s\n' "$RAW_BLOCK_PAYLOAD" > "$PROOF_DIR/raw_shell_block.json"
@@ -446,6 +481,7 @@ meta = {
         "second_execution_refused",
         "denied_approval_refused",
         "args_mismatch_refused",
+        "unsafe_tool_refused",
         "raw_shell_blocked",
         "privacy_clean",
     ],
